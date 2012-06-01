@@ -1,0 +1,19 @@
+{
+  "name": "Resurrectio",
+  "version": "1.0",
+  "manifest_version": 2,
+  "description": "CasperJS test recorder",
+  "browser_action": {
+    "default_icon": "icon.jpg",
+    "default_popup": "control.html"
+  },
+  "background_page": "background.html",
+  "permissions": [
+     "tabs",
+     "http://*/*"
+  ],
+  "content_scripts": [{
+        "matches": ["http://*/*", "https://*/*"],
+        "js": ["recorder.js"]
+  }]
+}

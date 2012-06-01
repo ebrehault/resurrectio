@@ -1,0 +1,38 @@
+<html><head>
+<script>
+var testcase_items = new Array();
+var active = false;
+var tab_id = null;
+
+chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+  if (request.action == "initialize") {
+    sendResponse({items: testcase_items});
+  }
+  if (request.action == "append") {
+	  alert('append');
+    testcase_items[testcase_items.length] = request.obj;
+    sendResponse({});
+  }
+  if (request.action == "get_status") {
+    sendResponse({'active': active});
+  }
+  if (request.action == "start") {
+    active = true;
+    tab_id = request.recorded_tab;
+    alert('BACK START ' + tab_id + ' on '+ request.start_url);
+    chrome.tabs.update(tab_id, {url: request.start_url}, function() {
+    	chrome.tabs.sendRequest(tab_id, {action: "open", 'url': request.start_url});
+    });
+    sendResponse({start: true});
+  }
+  if (request.action == "stop") {
+    active = false;
+    alert('BACK STOP');
+    sendResponse({});
+  }
+});
+</script>
+</head>
+<body>
+</body>
+</html>

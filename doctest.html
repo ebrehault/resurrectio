@@ -1,0 +1,325 @@
+<html>
+<head>
+
+<title>Doctest Renderer</title>
+
+<script type="text/javascript" src="./recorder.js"></script>
+<script language="javascript" type="text/javascript"><!--
+
+// ---------------------------------------------------------------------------
+// DoctestRenderer -- a class to render recorded tests to a Zope 3 doctest /
+// browser test format.
+// ---------------------------------------------------------------------------
+
+function DoctestRenderer(document) {
+  this.document = document;
+  this.recorder = top.frames["control"].recorder;
+  this.title = this.recorder.testcase.title;
+  this.items = this.recorder.testcase.items;
+  this.history = new Array();
+}
+
+DoctestRenderer.prototype.text = function(txt) {
+  // todo: long lines
+  this.document.writeln(txt);
+}
+
+DoctestRenderer.prototype.stmt = function(text) {
+  this.document.writeln("    >>> " + text);
+}
+
+DoctestRenderer.prototype.cont = function(text) {
+  this.document.writeln("    ... " + text);
+}
+
+DoctestRenderer.prototype.pyout = function(text) {
+  this.document.writeln("    " + text);
+}
+
+DoctestRenderer.prototype.pyrepr = function(text) {
+  // todo: handle non--strings & quoting
+  return "'" + text + "'";
+}
+
+DoctestRenderer.prototype.space = function() {
+  this.document.write("\n");
+}
+
+var d = {};
+d[TestRecorder.EventTypes.OpenUrl] = "openUrl";
+d[TestRecorder.EventTypes.Click] = "click";
+d[TestRecorder.EventTypes.Change] = "change";
+d[TestRecorder.EventTypes.Comment] = "comment";
+d[TestRecorder.EventTypes.Submit] = "submit";
+d[TestRecorder.EventTypes.CheckPageTitle] = "checkPageTitle";
+d[TestRecorder.EventTypes.CheckPageLocation] = "checkPageLocation";
+d[TestRecorder.EventTypes.CheckTextPresent] = "checkTextPresent";
+d[TestRecorder.EventTypes.CheckValue] = "checkValue";
+d[TestRecorder.EventTypes.CheckValueContains] = "checkValueContains";
+d[TestRecorder.EventTypes.CheckText] = "checkText";
+d[TestRecorder.EventTypes.CheckHref] = "checkHref";
+d[TestRecorder.EventTypes.CheckEnabled] = "checkEnabled";
+d[TestRecorder.EventTypes.CheckDisabled] = "checkDisabled";
+d[TestRecorder.EventTypes.CheckSelectValue] = "checkSelectValue";
+d[TestRecorder.EventTypes.CheckSelectOptions] = "checkSelectOptions";
+d[TestRecorder.EventTypes.CheckImageSrc] = "checkImageSrc";
+d[TestRecorder.EventTypes.PageLoad] = "pageLoad";
+DoctestRenderer.prototype.dispatch = d;
+
+var cc = TestRecorder.EventTypes;
+
+DoctestRenderer.prototype.render = function() {
+  var etypes = TestRecorder.EventTypes;
+  this.document.open();
+  this.document.write("<" + "pre" + ">");
+  this.writeHeader();
+
+  for (var i=0; i < this.items.length; i++) {
+    var item = this.items[i];
+    if (item.type == etypes.Comment)
+      this.space();
+    if (this.dispatch[item.type]) {
+      // Special case: we want to ignore submit events if they came from
+      // a click of a submit button, since we can just use the click in
+      // the doctest. If the last event was not a button click, we assume
+      // that the submit must have come from some funny javascript or 
+      // or something and include the submit event.
+      if ((i > 0) && (item.type == etypes.Submit)) {
+        var last = this.items[i - 1];
+        if (last.type == etypes.Click) {
+          if ((last.info.type == "submit") || (last.info.type == "image")) {
+            continue;
+          }
+        }
+      }
+      this[this.dispatch[item.type]](item);
+    }
+    if (item.type == etypes.Comment)
+      this.space();
+  }
+  this.document.write("<" + "/" + "pre" + ">");
+  this.document.close();
+}
+
+DoctestRenderer.prototype.writeHeader = function() {
+  var date = new Date();
+  this.text("==============================================================================");
+  this.text("Doctest generated " + date);
+  this.text("==============================================================================");
+  this.space();
+  this.text("Create the browser object we'll be using.");
+  this.space();
+  this.stmt("from zope.testbrowser import Browser");
+  this.stmt("browser = Browser()");
+  //this.stmt("browser.addHeader('Authorization', 'Basic mgr:mgrpw')");
+}
+
+DoctestRenderer.prototype.rewriteUrl = function(url) {
+  return 'http://localhost' + this.shortUrl(url)
+}
+
+DoctestRenderer.prototype.shortUrl = function(url) {
+  return url.substr(url.indexOf('/', 10), 999999999);
+}
+
+DoctestRenderer.prototype.openUrl = function(item) {
+  var url = this.pyrepr(this.rewriteUrl(item.url));
+  var history = this.history;
+  // if the user apparently hit the back button, render the event as such
+  if (url == history[history.length - 2]) {
+    this.stmt("browser.back()");
+    history.pop();
+    history.pop();
+  } else {
+    this.stmt("browser.open(" + url + ")");
+  }
+}
+
+DoctestRenderer.prototype.pageLoad = function(item) {
+  var url = this.pyrepr(this.rewriteUrl(item.url));
+  this.history.push(url);
+}
+
+DoctestRenderer.prototype.normalizeWhitespace = function(s) {
+  return s.replace(/^\s*/, '').replace(/\s*$/, '').replace(/\s+/g, ' ');
+}
+
+DoctestRenderer.prototype.getControlWay = function(item) {
+  var type = item.info.type;
+  var way;
+  if (type == "submit" || type == "button")
+    way = this.pyrepr(this.normalizeWhitespace(item.info.value));
+  else if (item.info.label)
+    way = this.pyrepr(this.normalizeWhitespace(item.info.label));
+  else if (item.info.name)
+    way = 'name=' + this.pyrepr(item.info.name);
+  else
+    way = 'TODO';
+
+  return way;
+}
+
+DoctestRenderer.prototype.getLinkWay = function(item) {
+  var way;
+  if (item.text)
+    way = this.pyrepr(this.normalizeWhitespace(item.text));
+  else if (item.info.id)
+    way = 'id=' + this.pyrepr(item.info.id);
+  else if (item.info.href)
+    way = 'url=' + this.pyrepr(this.shortUrl(item.info.href));
+  else
+    way = 'TODO';
+
+  return way;
+}
+
+DoctestRenderer.prototype.click = function(item) {
+  var tag = item.info.tagName.toLowerCase();
+  var method, way;
+  if (tag == 'a') {
+    method = 'getLink';
+    way = this.getLinkWay(item)
+  } else if (tag == 'input') {
+    method = 'getControl';
+    way = this.getControlWay(item)
+  }
+  this.stmt('browser.' + method + '(' + way + ').click()')
+}
+
+DoctestRenderer.prototype.getControl = function(item) {
+  return 'browser.getControl(' + this.getControlWay(item) + ')'
+}
+
+DoctestRenderer.prototype.change = function(item) {
+  var type = item.info.type;
+  var way = this.getControlWay(item);
+  var value = this.pyrepr(item.info.value)
+  if (type == 'checkbox' || type == 'radio') {
+    var selected;
+    if (item.info.checked)
+      selected = 'True'
+    else
+      selected = 'False'
+
+    if (item.info.value == 'on'){
+      this.stmt('browser.getControl(' + way + ').selected = ' + selected);
+    } else {
+      this.stmt('browser.getControl(' + way + ').getControl(value=' + value
+                + ').selected = ' + selected);
+    }
+  } else {
+    this.stmt('browser.getControl(' + way + ').value = ' + value);
+  }
+}
+
+DoctestRenderer.prototype.submit = function(item) {
+  // TODO
+  this.stmt("# submit form");
+}
+
+DoctestRenderer.prototype.comment = function(item) {
+  this.text(item.text);
+}
+
+DoctestRenderer.prototype.checkPageTitle = function(item) {
+  var title = this.pyrepr(item.title);
+  this.stmt("browser.title");
+  this.pyout(title);
+}
+
+DoctestRenderer.prototype.checkPageLocation = function(item) {
+  var url = this.pyrepr(item.url);
+  this.stmt("browser.url");
+  this.pyout(url)
+}
+
+DoctestRenderer.prototype.checkTextPresent = function(item) {
+  this.stmt(this.pyrepr(item.text) + " in browser.contents");
+  this.pyout("True")
+}
+
+DoctestRenderer.prototype.checkValue = function(item) {
+  var type = item.info.type;
+  var way = this.getControlWay(item);
+  if (type == 'checkbox' || type == 'radio') {
+    var selected;
+    if (item.info.checked)
+      selected = 'True'
+    else
+      selected = 'False'
+    this.stmt('browser.getControl(' + way + ').selected');
+    this.pyout(selected);
+  }
+  else {
+    var value = this.pyrepr(item.info.value)
+    this.stmt('browser.getControl(' + way + ').value');
+    this.pyout(this.pyrepr(item.info.value));
+  }
+}
+
+DoctestRenderer.prototype.checkValueContains = function(item) {
+  this.stmt('control = ' + this.getControl(item));
+  this.stmt(this.pyrepr(item.text) + " in control.value");
+  this.pyout("True");
+}
+
+DoctestRenderer.prototype.checkText = function(item) {
+  if ((item.info.type == "submit") || (item.info.type == "button")) {
+    this.stmt(this.getControl(item) + '.value');
+    this.pyout(this.pyrepr(item.text));
+  }
+  else {
+    this.stmt(this.pyrepr(item.text) + " in browser.contents");
+    this.pyout("True")
+  }
+}
+
+DoctestRenderer.prototype.checkHref = function(item) {
+  // TODO
+  this.stmt("# check href");
+}
+
+DoctestRenderer.prototype.checkEnabled = function(item) {
+  this.stmt('control = ' + this.getControl(item));
+  this.stmt("control.disabled");
+  this.pyout("False");
+}
+
+DoctestRenderer.prototype.checkDisabled = function(item) {
+  this.stmt('control = ' + this.getControl(item));
+  this.stmt("control.disabled");
+  this.pyout("True");
+}
+
+DoctestRenderer.prototype.checkSelectValue = function(item) {
+  this.stmt(this.getControl(item) + '.value');
+  this.pyrepr(item.info.value);
+}
+
+DoctestRenderer.prototype.checkSelectOptions = function(item) {
+  this.stmt('control = ' + this.getControl(item));
+  this.stmt("control.options");
+  var st = "[";
+  for (var i=0; i < item.info.options.length; i++) {
+    if (i > 0) 
+      st = st + ", ";
+    st = st + this.pyrepr(item.info.options[i].value);
+  }
+  this.pyout(st + "]")
+}
+
+DoctestRenderer.prototype.checkImageSrc = function(item) {
+  // TODO
+  this.stmt("# check image src");
+}
+
+
+function onpageload() {
+  var dt = new DoctestRenderer(document);
+  dt.render();
+}
+
+//--></script>
+</head>
+<body onload="onpageload()"></body>
+</html>

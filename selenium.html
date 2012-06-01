@@ -1,0 +1,290 @@
+<html>
+<head>
+
+<title>Selenium Renderer</title>
+
+<script type="text/javascript" src="./recorder.js"></script>
+<script language="javascript" type="text/javascript"><!--
+
+// ---------------------------------------------------------------------------
+// SeleniumRenderer -- a class to render tests in selenium format.
+// todo:
+//   - remove host from urls and hrefs?
+//   -
+// ---------------------------------------------------------------------------
+
+function SeleniumRenderer(document) {
+  this.document = document;
+  this.recorder = top.frames["control"].recorder;
+  this.title = this.recorder.testcase.title;
+  this.items = this.recorder.testcase.items;
+  this.output = "";
+}
+
+SeleniumRenderer.prototype.quote = function(data) {
+  if (data) {
+    data = data.replace(/[<]/g, '&lt;');
+    data = data.replace(/[>]/g, '&gt;');
+    data = data.replace(/["]/g, '&quot;');
+  }
+  return data;
+}
+
+SeleniumRenderer.prototype.write = function(data) {
+  this.document.write(data);
+  this.output = this.output + this.quote(data);
+}
+
+SeleniumRenderer.prototype.otag = function(tag, ex) {
+  ex = ex ? " " + ex : "";
+  return "<" + tag + ex +">";
+}
+
+SeleniumRenderer.prototype.ctag = function(tag) {
+  return "<" + "/" + tag + ">";
+}
+
+SeleniumRenderer.prototype.row = function(tx1, tx2, tx3) {
+  tx1 = tx1 ? tx1 : "";
+  tx2 = tx2 ? tx2 : "";
+  tx3 = tx3 ? tx3 : "";
+  var s = this.otag("tr") + "\n";
+  s = s + this.otag("td") + tx1 + this.ctag("td") + "\n";
+  s = s + this.otag("td") + tx2 + this.ctag("td") + "\n";
+  s = s + this.otag("td") + tx3 + this.ctag("td") + "\n";
+  s = s + this.ctag("tr") + "\n";
+  this.write(s);
+}
+
+
+SeleniumRenderer.prototype.fixurl = function(url) {
+  var i = url.indexOf("//");
+  if (i < 0) return url;
+  url = url.slice(i + 2, url.length);
+  i = url.indexOf("/");
+  if (i < 0) return url;
+  return url.slice(i, url.length);
+}
+
+SeleniumRenderer.prototype.repr = function(text) {
+  // todo: handle non--strings & quoting
+  return text;
+}
+
+var d = {};
+d[TestRecorder.EventTypes.OpenUrl] = "openUrl";
+d[TestRecorder.EventTypes.Click] = "click";
+d[TestRecorder.EventTypes.Change] = "change";
+d[TestRecorder.EventTypes.Comment] = "comment";
+d[TestRecorder.EventTypes.Submit] = "submit";
+d[TestRecorder.EventTypes.CheckPageTitle] = "checkPageTitle";
+d[TestRecorder.EventTypes.CheckPageLocation] = "checkPageLocation";
+d[TestRecorder.EventTypes.CheckTextPresent] = "checkTextPresent";
+d[TestRecorder.EventTypes.CheckValue] = "checkValue";
+d[TestRecorder.EventTypes.CheckValueContains] = "checkValueContains";
+d[TestRecorder.EventTypes.CheckText] = "checkText";
+d[TestRecorder.EventTypes.CheckHref] = "checkHref";
+d[TestRecorder.EventTypes.CheckEnabled] = "checkEnabled";
+d[TestRecorder.EventTypes.CheckDisabled] = "checkDisabled";
+d[TestRecorder.EventTypes.CheckSelectValue] = "checkSelectValue";
+d[TestRecorder.EventTypes.CheckSelectOptions] = "checkSelectOptions";
+d[TestRecorder.EventTypes.CheckImageSrc] = "checkImageSrc";
+SeleniumRenderer.prototype.dispatch = d;
+
+SeleniumRenderer.prototype.render = function() {
+  this.document.open();
+  this.otag("html");
+
+  this.document.write(this.otag("html"));
+  this.document.write(this.otag("body"));
+
+  this.write(this.otag("table", "border=1") + "\n");
+
+  // should write title here
+
+  for (var i=0; i < this.items.length; i++) {
+    var item = this.items[i];
+    if (this.dispatch[item.type]) {
+      this[this.dispatch[item.type]](item);
+    }
+  }
+
+  this.write(this.ctag("table"));
+
+  this.document.write(this.otag("pre"));
+  this.document.write(this.output);
+  this.document.write(this.ctag("pre"));
+  this.document.write(this.ctag("body"));
+  this.document.write(this.ctag("html"));
+  this.document.close();
+}
+
+SeleniumRenderer.prototype.bestId = function(item) {
+  var id = this.xpathId(item);
+  if (id) return id;
+  else if (item.info && item.info.name)
+    return item.info.name;
+  else if (item.info && item.info.id)
+    return item.info.id;
+  return 'TODO';
+}
+
+SeleniumRenderer.prototype.xpathId = function(item) {
+  // Try to produce an xpath identifier for item
+  if (!item.info || !item.info.tagName) {
+    return null;
+  }
+
+  var tag = item.info.tagName.toLowerCase();
+  var type = item.info.type;
+  var xp = "//" + tag + "[";
+
+  if ((tag == "input") && ((type == "checkbox") || (type == "radio"))) {
+    xp = xp + "@name='" + this.repr(item.info.name) + "'";
+    xp = xp + " and @value='" + this.repr(item.info.value) + "']";
+    return xp;
+  }
+  else if ((tag == "input") && ((type == "submit") || (type == "button"))) {
+    xp = xp + "@name='" + this.repr(item.info.name) + "'";
+    xp = xp + " and @value='" + this.repr(item.info.value) + "']";
+    return xp;
+  }
+  else if (item.info.id) {
+    return xp + "@id='" + this.repr(item.info.id) + "']";
+  }
+  else if (item.info.name) {
+    return xp + "@name='" + this.repr(item.info.name) + "']";
+  }
+  else if (tag == "a") {
+    if (item.info.text) {
+      return xp + "text()='" + this.repr(item.info.text) + "']";
+    }
+    return xp + "@href='" + this.repr(this.fixurl(item.info.href)) + "']";
+  }
+  else if (item.info.text) {
+    return xp + "text()='" + this.repr(item.info.text) + "']";
+  }
+  else if (item.info.src) {
+    return xp + "@src='" + this.repr(item.info.text) + "']";
+  }
+  return null;
+}
+
+SeleniumRenderer.prototype.openUrl = function(item) {
+  var url = this.repr(this.fixurl(item.url));
+  this.row("open", url, "");
+}
+
+SeleniumRenderer.prototype.click = function(item) {
+  var id = this.bestId(item);
+  var cmd = "click";
+  if ((item.info.href) || (item.info.type == "submit")) {
+    cmd = "clickAndWait";
+  }
+  this.row(cmd, id, "");
+}
+
+SeleniumRenderer.prototype.change = function(item) {
+  var id = this.bestId(item);
+  var tag = item.info ? item.info.tagName : null;
+  var type = item.info ? item.info.type : null;
+  var cmd = "type";
+
+  if ((type == "radio") || (type == "checkbox")) {
+    return this.click(item);
+  }
+  else if (tag && tag.toLowerCase() == "select") {
+    cmd = "select";
+  }
+  this.row(cmd, id, this.repr(item.info.value));
+  return;
+}
+
+SeleniumRenderer.prototype.submit = function(item) {
+  // submit events are not used / needed for selenium
+  return;
+}
+
+SeleniumRenderer.prototype.comment = function(item) {
+  this.write("\n<" + "!--\n");
+  this.write(item.text);
+  this.write("\n--" + ">\n\n");
+  return;
+}
+
+SeleniumRenderer.prototype.checkPageTitle = function(item) {
+  var title = this.repr(item.title);
+  this.row("verifyTitle", title, "");
+}
+
+SeleniumRenderer.prototype.checkPageLocation = function(item) {
+  var url = this.repr(this.fixurl(item.url));
+  this.row("verifyLocation", url, "");
+}
+
+SeleniumRenderer.prototype.checkTextPresent = function(item) {
+  this.row("verifyTextPresent", item.text, "");
+}
+
+SeleniumRenderer.prototype.checkValue = function(item) {
+  var id = this.bestId(item);
+  this.row("verifyValue", id, this.repr(item.info.value));
+}
+
+SeleniumRenderer.prototype.checkValueContains = function(item) {
+  // not currently supported
+  return;
+}
+
+SeleniumRenderer.prototype.checkText = function(item) {
+  var id = this.bestId(item);
+  this.row("verifyText", id, this.repr(item.text));
+}
+
+SeleniumRenderer.prototype.checkHref = function(item) {
+  var id = this.bestId(item);
+  this.row("verifyAttribute", id + "@href", this.fixurl(item.info.href));
+}
+
+SeleniumRenderer.prototype.checkEnabled = function(item) {
+  var id = this.bestId(item);
+  this.row("verifyEditable", id, "");
+}
+
+SeleniumRenderer.prototype.checkDisabled = function(item) {
+  var id = this.bestId(item);
+  this.row("verifyNotEditable", id, "");
+}
+
+SeleniumRenderer.prototype.checkSelectValue = function(item) {
+  return this.checkValue(item);
+}
+
+SeleniumRenderer.prototype.checkSelectOptions = function(item) {
+  var id = this.bestId(item);
+  var so = "";
+  for (var i=0; i < item.info.options.length; i++) {
+    if (i > 0)
+      so = so + ",";
+    so = so + this.repr(item.info.options[i].value);
+  }
+  this.row("verifySelectOptions", id, so);
+}
+
+SeleniumRenderer.prototype.checkImageSrc = function(item) {
+  var id = this.bestId(item);
+  this.row("verifyAttribute", id + "@src", this.fixurl(item.info.src));
+}
+
+var sr = new SeleniumRenderer(document);
+
+function onpageload() {
+  sr.render();
+}
+
+//--></script>
+</head>
+<body onload="onpageload()">
+
+</body>
+</html>

@@ -1,0 +1,26 @@
+<html>
+<head>
+<title>Test Recorder</title>
+
+<script language="javascript" type="text/javascript"><!--
+
+// We need to explicitly tell the recorder when a new document is 
+// loaded in the testing frame so that it can recapture events.
+
+function pageload() {
+  var recorder = top.frames[0].recorder;
+  if (recorder)
+    recorder.onpageload();
+  return;
+}
+
+//--></script>
+
+</head>
+
+<frameset id="fs" name="fs" rows="50,*">
+  <frame name="control" src="./control.html">
+  <frame name="target" src="./begin.html" onLoad="pageload()">
+</frameset>
+
+</html>
