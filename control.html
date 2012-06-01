@@ -119,6 +119,9 @@ RecorderUI.prototype.hidecomment = function(bsave) {
   return false;
 }
 
+RecorderUI.prototype.export = function(bexport) {
+	chrome.tabs.create({url: "./result.html"});
+}
 var ui = new RecorderUI();
 //--></script>
 
@@ -139,7 +142,9 @@ var ui = new RecorderUI();
    style="display:none;"
    onclick="ui.stop(); return false;"> 
   <input type="submit" id="bcomment" name="bcomment" value="Add Comment"
-   onclick="ui.showcomment(); return false;"> 
+   onclick="ui.showcomment(); return false;">
+  <input type="submit" id="bexport" name="bexport" value="Export"
+   onclick="ui.export(); return false;"> 
   </td>
   </tr>
 
