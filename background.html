@@ -5,9 +5,6 @@ var active = false;
 var tab_id = null;
 
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-  if (request.action == "initialize") {
-    sendResponse({items: testcase_items});
-  }
   if (request.action == "append") {
 	  alert('append');
     testcase_items[testcase_items.length] = request.obj;
@@ -28,6 +25,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
   if (request.action == "stop") {
     active = false;
     alert('BACK STOP');
+    chrome.tabs.sendRequest(tab_id, {action: "stop"});
     sendResponse({});
   }
 });

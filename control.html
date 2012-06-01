@@ -19,8 +19,8 @@ RecorderProxy.prototype.start = function(url) {
 	});
 }
 
-RecorderProxy.prototype.stop = function(callback) {
-    chrome.extension.sendRequest({action: "stop"}, callback);
+RecorderProxy.prototype.stop = function() {
+    chrome.extension.sendRequest({action: "stop"});
 }
 
 RecorderProxy.prototype.open = function(url, callback) {
@@ -35,59 +35,58 @@ RecorderProxy.prototype.addComment = function(text, callback) {
     });
 }
 
-RecorderProxy.prototype.refresh_status = function() {
-    chrome.tabs.getSelected(null, function(tab) {
-        chrome.tabs.sendRequest(tab.id, {action: "get_status"}, function(response) {
-            this.active = response.active
-        });
-    });
-}
-
 //-----------------------------------------------
 // UI
 //----------------------------------------------
 function RecorderUI() {
-  this.recorder = new RecorderProxy();
-  chrome.tabs.getSelected(null, function(tab) {
-	  document.forms[0].elements["url"].value = tab.url;
-  });
+	this.recorder = new RecorderProxy();
+	chrome.extension.sendRequest({action: "get_status"}, function(response) {
+	    if (response.active) {
+	    	ui.set_started();
+	    } else {
+	        chrome.tabs.getSelected(null, function(tab) {
+                  document.forms[0].elements["url"].value = tab.url;
+            });
+	    }
+	});
+  
 }
 
 RecorderUI.prototype.start = function() {
-  var url = document.forms[0].elements["url"].value;
-  if (url == "") {
+    var url = document.forms[0].elements["url"].value;
+    if (url == "") {
+        return false;
+    }
+    if ( (url.indexOf("http://") == -1) && (url.indexOf("https://")) ) {
+        url = "http://" + url;
+    }
+    ui.set_started()
+    ui.recorder.start(url);
+  
     return false;
-  }
-  if ( (url.indexOf("http://") == -1) && (url.indexOf("https://")) ) {
-    url = "http://" + url;
-  }
+}
 
+RecorderUI.prototype.set_started = function() {
   var e = document.getElementById("bstop");
   e.style.display = '';
   e.onclick = ui.stop;
   e.value = "Stop Recording";
   e = document.getElementById("bcomment");
   e.style.display = '';
-
-  //ui.recorder.open(url, function() {
-  ui.recorder.start(url);
-  
-  return false;
 }
 
 RecorderUI.prototype.stop = function() {
-  var e = document.getElementById("bstop");
-  e.style.display = 'none';
-  e = document.getElementById("bcomment");
-  e.style.display = 'none';
-  ui.recorder.stop(function() {
-      ui.recorder.refresh_status(function() {
-    	  ui.goto("./result.html");
-      });
-  });
-  return false;
+    ui.set_stopped();
+	ui.recorder.stop();
+	return false;
 }
 
+RecorderUI.prototype.set_stopped = function() {
+	var e = document.getElementById("bstop");
+	e.style.display = 'none';
+	e = document.getElementById("bcomment");
+	e.style.display = 'none';
+}
 RecorderUI.prototype.goto = function(targeturl) {
 	chrome.tabs.getSelected(null, function(tab) {
 	    chrome.tabs.update(tab.id, {url: targeturl});
@@ -95,8 +94,6 @@ RecorderUI.prototype.goto = function(targeturl) {
 }
 
 RecorderUI.prototype.showcomment = function() {
-  var f = top.document.getElementById("fs");
-  f.rows = "250,*";
   var e = document.getElementById("bcomment");
   e.style.display = 'none';
   e = document.getElementById("comment");
@@ -107,8 +104,6 @@ RecorderUI.prototype.showcomment = function() {
 }
 
 RecorderUI.prototype.hidecomment = function(bsave) {
-  var f = top.document.getElementById("fs");
-  f.rows = "50,*";
   var e = document.getElementById("bcomment");
   e.style.display = '';
   e = document.getElementById("comment");
@@ -137,7 +132,7 @@ var ui = new RecorderUI();
   <strong>URL:</strong> 
   </td>
   <td align="left" valign="top">
-  <input type="text" size="80" name="url" value="http://www.google.com"> 
+  <input type="text" size="80" name="url" /> 
   <input type="submit" name="submit" value=" Go "
    onclick="ui.start(); return false;"> 
   <input type="submit" id="bstop" name="bstop" value="Stop Recording"

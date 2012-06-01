@@ -261,10 +261,9 @@ TestRecorder.Event.prototype.posY = function() {
 
 TestRecorder.TestCase = function() {
   this.title = "Test Case";
-  chrome.extension.sendRequest({action: "initialize"}, function(response) {
-	  alert('YOOO');
-	  this.items = response.items;
-  });
+  // maybe some items are already stored in the background
+  // but we do not need them here anyway
+  this.items = new Array();
 }
 
 TestRecorder.TestCase.prototype.append = function(o) {
@@ -725,7 +724,6 @@ TestRecorder.ContextMenu.prototype.cancel = function() {
 // ---------------------------------------------------------------------------
 
 TestRecorder.Recorder = function() {
-	alert('init');
   this.testcase = new TestRecorder.TestCase();
   this.logfunc = null;
   this.window = null;
@@ -755,7 +753,6 @@ TestRecorder.Recorder.prototype.stop = function() {
 
 TestRecorder.Recorder.prototype.open = function(url) {
   var e = new TestRecorder.OpenURLEvent(url);
-  alert("open event "+url);
   this.testcase.append(e);
   this.log("open url: " + url);
 }
@@ -969,7 +966,6 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 // get current status from background
 chrome.extension.sendRequest({action: "get_status"}, function(response) {
 	if (response.active) {
-		alert('started');
 		recorder.start();
 	}
 });
