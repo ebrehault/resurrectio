@@ -455,12 +455,6 @@ TestRecorder.ContextMenu.prototype.build = function(t, x, y) {
   }
 
   else if (t.type == "text" || t.type == "textarea") {
-    if (selected && (selected != "")) {
-      this.selected = recorder.strip(selected);
-      menu.appendChild(this.item("Check Selected Text", 
-                       this.checkValueContains)
-                       );
-    }
     menu.appendChild(this.item("Check Text Value", this.checkValue));
     menu.appendChild(this.item("Check Enabled", this.checkEnabled));
     menu.appendChild(this.item("Check Disabled", this.checkDisabled));
