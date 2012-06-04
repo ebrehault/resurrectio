@@ -71,8 +71,12 @@ RecorderUI.prototype.set_started = function() {
   e.style.display = '';
   e.onclick = ui.stop;
   e.value = "Stop Recording";
+  e = document.getElementById("bgo");
+  e.style.display = 'none';
   e = document.getElementById("bcomment");
   e.style.display = '';
+  e = document.getElementById("bexport");
+  e.style.display = 'none';
 }
 
 RecorderUI.prototype.stop = function() {
@@ -84,8 +88,12 @@ RecorderUI.prototype.stop = function() {
 RecorderUI.prototype.set_stopped = function() {
 	var e = document.getElementById("bstop");
 	e.style.display = 'none';
+	e = document.getElementById("bgo");
+    e.style.display = '';
 	e = document.getElementById("bcomment");
 	e.style.display = 'none';
+	e = document.getElementById("bexport");
+	  e.style.display = '';
 }
 RecorderUI.prototype.goto = function(targeturl) {
 	chrome.tabs.getSelected(null, function(tab) {
@@ -120,39 +128,28 @@ RecorderUI.prototype.hidecomment = function(bsave) {
 }
 
 RecorderUI.prototype.export = function(bexport) {
-	chrome.tabs.create({url: "./result.html"});
+	chrome.tabs.create({url: "./casper.html"});
 }
 var ui = new RecorderUI();
 //--></script>
 
 </head>
 <body>
-
 <form name="control">
-<table border="0">
-  <tr>
-  <td align="left" valign="top">
-  <strong>URL:</strong> 
-  </td>
-  <td align="left" valign="top">
+<div><strong>URL:</strong>
   <input type="text" size="80" name="url" /> 
-  <input type="submit" name="submit" value=" Go "
+  <input type="submit" id="bgo" name="submit" value=" Go "
    onclick="ui.start(); return false;"> 
   <input type="submit" id="bstop" name="bstop" value="Stop Recording"
    style="display:none;"
    onclick="ui.stop(); return false;"> 
   <input type="submit" id="bcomment" name="bcomment" value="Add Comment"
    onclick="ui.showcomment(); return false;">
-  <input type="submit" id="bexport" name="bexport" value="Export"
+  <input type="submit" id="bexport" name="bexport" value="Export Casper test"
    onclick="ui.export(); return false;"> 
-  </td>
-  </tr>
-
-  <tr id="comment" style="display:none">
-  <td align="left" valign="top">
+</div> 
+<div id="comment" style="display:none">
   <strong>Comment:</strong> 
-  </td>
-  <td align="left" valign="top">
   <textarea id="ctext" id="ctext" name="ctext"
    rows="8" cols="80"></textarea> 
   <br />
@@ -160,10 +157,9 @@ var ui = new RecorderUI();
    onclick="ui.hidecomment(true); return false;"> 
   <input type="submit" name="c2" value=" Cancel " 
    onclick="ui.hidecomment(false); return false;">
-  </td>
-  </tr>
-</table>
+</div>
 </form>
-
+<div id="logo"></div>
+<p class="tagline"><a href="https://github.com/ebrehault/resurrectio" target="_new">Resurrectio</a>, every phantom deserves a resurrection, by <a href="http://www.makina-corpus.com" target="_new" title="Makina Corpus"><img alt="Makina Corpus" src="./makina-corpus.png" /></a></p>
 </body>
 </html>

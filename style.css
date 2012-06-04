@@ -1,7 +1,28 @@
 body { 
-  font: 8pt/16pt georgia,verdana; 
+  font-family: verdana; 
+  font-size: 80%;
   text-decoration: none;
   color: #555753; 
   background: #ffffff;
   margin: 0px; 
+}
+
+.tagline {
+	color: grey;
+}
+
+#logo {
+	float: right;
+}
+
+input[type=submit], input[type=button] {
+	border: 0;
+	color:#205C90;
+	padding:0.25em 0.5em;
+	background:none repeat scroll 0 0 #DDDDDD;
+	font-size: 1em;
+	border-radius: 0.5em;
+	-webkit-border-radius: 0.5em;
+	-moz-border-radius: 0.5em;
+	cursor: pointer;
 }
