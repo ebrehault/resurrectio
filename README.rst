@@ -28,6 +28,7 @@ Resurrection installation
 -------------------------
 
 Get Github sources::
+
     git clone git://github.com/ebrehault/resurrectio.git
 
 It will produce a ./resurrection folder.
@@ -62,6 +63,7 @@ click **Stop recording**.
 Now, generate the CasperJS test script by clicking **Export Casper test**.
 
 Copy/paste the resulting code into a local file, and run the test::
+
     casperjs my_scenario.js
 
 It will play your entire scenario and produce the screenshots.
