@@ -1,7 +1,7 @@
 {
   "name": "Resurrectio",
   "version": "1.0",
-  "manifest_version": 2,
+  "manifest_version": 1,
   "description": "CasperJS test recorder",
   "icons": {"48": "makina-icon.png",
           "128": "makina-icon-128.png" },
