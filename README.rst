@@ -34,10 +34,11 @@ Get Github sources::
 It will produce a ./resurrection folder.
 
 Then, in Chrome:
-- go to **Tools / Extensions**,
-- expand **Developer mode**,
-- click **Load unpacked extension**,
-- select the .resurrection folder.
+
+    - go to **Tools / Extensions**,
+    - expand **Developer mode**,
+    - click **Load unpacked extension**,
+    - select the .resurrection folder.
 
 Usage
 =====
