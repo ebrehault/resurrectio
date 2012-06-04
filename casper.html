@@ -77,7 +77,6 @@ d[EventTypes.CheckPageTitle] = "checkPageTitle";
 d[EventTypes.CheckPageLocation] = "checkPageLocation";
 d[EventTypes.CheckTextPresent] = "checkTextPresent";
 d[EventTypes.CheckValue] = "checkValue";
-d[EventTypes.CheckValueContains] = "checkValueContains";
 d[EventTypes.CheckText] = "checkText";
 d[EventTypes.CheckHref] = "checkHref";
 d[EventTypes.CheckEnabled] = "checkEnabled";
@@ -142,7 +141,6 @@ CasperRenderer.prototype.writeFooter = function() {
 	  this.stmt("casper.run(function() {this.test.renderResults(true);});");
 	}
 CasperRenderer.prototype.rewriteUrl = function(url) {
-  //return 'http://localhost' + this.shortUrl(url)
   return url;
 }
 
@@ -155,9 +153,11 @@ CasperRenderer.prototype.openUrl = function(item) {
   var history = this.history;
   // if the user apparently hit the back button, render the event as such
   if (url == history[history.length - 2]) {
-	this.stmt("casper.back();");
-    history.pop();
-    history.pop();
+	  this.stmt('casper.then(function() {');
+	  this.stmt('    this.back();');
+	  this.stmt('});');
+	  history.pop();
+	  history.pop();
   } else {
 	  if(history.length > 0) {
 		  this.stmt("casper.thenOpen(" + url + ");");
@@ -181,8 +181,6 @@ CasperRenderer.prototype.getControlWay = function(item) {
   var way;
   if (type == "submit" || type == "button")
     way = '@value=' + this.pyrepr(this.normalizeWhitespace(item.info.value));
-  else if (item.info.label)
-    way = 'TODO'; //this.pyrepr(this.normalizeWhitespace(item.info.label));
   else if (item.info.name)
     way = '@name=' + this.pyrepr(item.info.name);
   else if (item.info.id)
@@ -261,6 +259,8 @@ CasperRenderer.prototype.change = function(item) {
 }
 
 CasperRenderer.prototype.submit = function(item) {
+  // the submit has been called somehow (user, or script)
+  // so no need to trigger it.
   this.stmt("// submit form");
 }
 
@@ -271,19 +271,23 @@ CasperRenderer.prototype.screenShot = function(item) {
 }
 
 CasperRenderer.prototype.comment = function(item) {
-  this.text(item.text);
+  this.stmt('casper.then(function() {');
+  this.stmt('    this.test.comment("'+item.text+'");');
+  this.stmt('});');
 }
 
 CasperRenderer.prototype.checkPageTitle = function(item) {
   var title = this.pyrepr(item.title);
-  this.stmt("browser.title");
-  this.pyout(title);
+  this.stmt('casper.then(function() {');
+  this.stmt('    this.test.assertTitle('+ title +');');
+  this.stmt('});');
 }
 
 CasperRenderer.prototype.checkPageLocation = function(item) {
-  var url = this.pyrepr(item.url);
-  this.stmt("browser.url");
-  this.pyout(url)
+  var url = item.url.replace(new RegExp('/', 'g'), '\\/');
+  this.stmt('casper.then(function() {');
+  this.stmt('    this.test.assertUrlMatch(/^'+ url +'$/);');
+  this.stmt('});');
 }
 
 CasperRenderer.prototype.checkTextPresent = function(item) {
@@ -298,73 +302,76 @@ CasperRenderer.prototype.checkValue = function(item) {
   if (type == 'checkbox' || type == 'radio') {
     var selected;
     if (item.info.checked)
-      selected = 'True'
+      selected = '@checked'
     else
-      selected = 'False'
-    this.stmt('browser.getControl(' + way + ').selected');
-    this.pyout(selected);
+      selected = 'not(@checked)'
+    this.stmt('casper.then(function() {');
+    this.stmt('    this.test.assertExists(x("//input[' + way + ' and ' +selected+ ']"));');
+    this.stmt('});');
   }
   else {
     var value = this.pyrepr(item.info.value)
-    this.stmt('browser.getControl(' + way + ').value');
-    this.pyout(this.pyrepr(item.info.value));
+    var tag = item.info.tagName.toLowerCase();
+    this.stmt('casper.then(function() {');
+    this.stmt('    this.test.assertExists(x("//'+tag+'[' + way + ' and @value='+value+']"));');
+    this.stmt('});');
   }
-}
-
-CasperRenderer.prototype.checkValueContains = function(item) {
-  this.stmt('control = ' + this.getControl(item));
-  this.stmt(this.pyrepr(item.text) + " in control.value");
-  this.pyout("True");
 }
 
 CasperRenderer.prototype.checkText = function(item) {
   if ((item.info.type == "submit") || (item.info.type == "button")) {
-    this.stmt(this.getControl(item) + '.value');
-    this.pyout(this.pyrepr(item.text));
+    this.stmt('casper.then(function() {');
+    this.stmt('    this.test.assertExists(x("//input[@value='+this.pyrepr(item.text)+']"));');
+    this.stmt('});');
   }
   else {
-    this.stmt(this.pyrepr(item.text) + " in browser.contents");
-    this.pyout("True")
+    this.stmt('casper.then(function() {');
+    this.stmt('    this.test.assertTextExists(' + this.pyrepr(item.text) + ');')
+    this.stmt('});');
   }
 }
 
 CasperRenderer.prototype.checkHref = function(item) {
-  // TODO
-  this.stmt("# check href");
+	var way = this.getLinkWay(item);
+	var href = this.pyrepr(this.shortUrl(item.info.href));
+    this.stmt('casper.then(function() {');
+    this.stmt('    this.test.assertExists(x("//a[' + way + ' and @href='+ href +']"));');
+    this.stmt('});');
 }
 
 CasperRenderer.prototype.checkEnabled = function(item) {
-  this.stmt('control = ' + this.getControl(item));
-  this.stmt("control.disabled");
-  this.pyout("False");
+	  var way = this.getControlWay(item);
+	  var tag = item.info.tagName.toLowerCase();
+	  this.stmt('casper.then(function() {');
+	  this.stmt('    this.test.assertExists(x("//'+tag+'[' + way + ' and not(@disabled)]"));');
+	  this.stmt('});');
 }
 
 CasperRenderer.prototype.checkDisabled = function(item) {
-  this.stmt('control = ' + this.getControl(item));
-  this.stmt("control.disabled");
-  this.pyout("True");
+  var way = this.getControlWay(item);
+  var tag = item.info.tagName.toLowerCase();
+  this.stmt('casper.then(function() {');
+  this.stmt('    this.test.assertExists(x("//'+tag+'[' + way + ' and @disabled]"));');
+  this.stmt('});');
 }
 
 CasperRenderer.prototype.checkSelectValue = function(item) {
-  this.stmt(this.getControl(item) + '.value');
-  this.pyrepr(item.info.value);
+  var value = this.pyrepr(item.info.value);
+  var way = this.getControlWay(item);
+  this.stmt('casper.then(function() {');
+  this.stmt('    this.test.assertExists(x("//select[' + way + ']/options[@selected and @value='+value+']"));');
+  this.stmt('});');
 }
 
 CasperRenderer.prototype.checkSelectOptions = function(item) {
-  this.stmt('control = ' + this.getControl(item));
-  this.stmt("control.options");
-  var st = "[";
-  for (var i=0; i < item.info.options.length; i++) {
-    if (i > 0) 
-      st = st + ", ";
-    st = st + this.pyrepr(item.info.options[i].value);
-  }
-  this.pyout(st + "]")
+	this.stmt('// TODO');
 }
 
 CasperRenderer.prototype.checkImageSrc = function(item) {
-  // TODO
-  this.stmt("# check image src");
+	var src = this.pyrepr(this.shortUrl(item.info.src));
+	this.stmt('casper.then(function() {');
+	this.stmt('    this.test.assertExists(x("//img[@src=' + src + ']"));');
+	this.stmt('});');
 }
 
 var dt = new CasperRenderer(document);
