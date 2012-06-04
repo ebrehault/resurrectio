@@ -3,9 +3,12 @@
   "version": "1.0",
   "manifest_version": 2,
   "description": "CasperJS test recorder",
+  "icons": {"48": "makina-icon.png",
+          "128": "makina-icon-128.png" },
   "browser_action": {
-    "default_icon": "icon.jpg",
-    "default_popup": "control.html"
+    "default_icon": "makina-icon.png",
+    "default_popup": "control.html",
+    "default_title": "CasperJS test recorder"
   },
   "background_page": "background.html",
   "permissions": [
@@ -15,5 +18,6 @@
   "content_scripts": [{
         "matches": ["http://*/*", "https://*/*"],
         "js": ["recorder.js"]
-  }]
+  }],
+  "offline_enabled": true
 }

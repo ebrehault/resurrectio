@@ -6,7 +6,6 @@ var tab_id = null;
 
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
   if (request.action == "append") {
-	  alert('append');
     testcase_items[testcase_items.length] = request.obj;
     sendResponse({});
   }
@@ -18,7 +17,6 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	    active = true;
 	    testcase_items = new Array();
 	    tab_id = request.recorded_tab;
-	    alert('BACK START ' + tab_id + ' on '+ request.start_url);
 	    chrome.tabs.update(tab_id, {url: request.start_url}, function() {
 	        chrome.tabs.sendRequest(tab_id, {action: "open", 'url': request.start_url});
 	    });
@@ -27,7 +25,6 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
   }
   if (request.action == "stop") {
     active = false;
-    alert('BACK STOP');
     chrome.tabs.sendRequest(tab_id, {action: "stop"});
     sendResponse({});
   }
