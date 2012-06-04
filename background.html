@@ -14,19 +14,25 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
     sendResponse({'active': active});
   }
   if (request.action == "start") {
-    active = true;
-    tab_id = request.recorded_tab;
-    alert('BACK START ' + tab_id + ' on '+ request.start_url);
-    chrome.tabs.update(tab_id, {url: request.start_url}, function() {
-    	chrome.tabs.sendRequest(tab_id, {action: "open", 'url': request.start_url});
-    });
-    sendResponse({start: true});
+	if(!active) {
+	    active = true;
+	    testcase_items = new Array();
+	    tab_id = request.recorded_tab;
+	    alert('BACK START ' + tab_id + ' on '+ request.start_url);
+	    chrome.tabs.update(tab_id, {url: request.start_url}, function() {
+	        chrome.tabs.sendRequest(tab_id, {action: "open", 'url': request.start_url});
+	    });
+	    sendResponse({start: true});
+	}
   }
   if (request.action == "stop") {
     active = false;
     alert('BACK STOP');
     chrome.tabs.sendRequest(tab_id, {action: "stop"});
     sendResponse({});
+  }
+  if (request.action == "get_items") {
+	sendResponse({'items': testcase_items});
   }
 });
 </script>

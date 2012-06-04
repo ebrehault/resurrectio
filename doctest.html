@@ -13,9 +13,8 @@
 
 function DoctestRenderer(document) {
   this.document = document;
-  this.recorder = top.frames["control"].recorder;
-  this.title = this.recorder.testcase.title;
-  this.items = this.recorder.testcase.items;
+  this.title = "Testcase";
+  this.items = null;
   this.history = new Array();
 }
 
@@ -313,12 +312,13 @@ DoctestRenderer.prototype.checkImageSrc = function(item) {
   this.stmt("# check image src");
 }
 
-
 function onpageload() {
-  var dt = new DoctestRenderer(document);
-  dt.render();
+	var dt = new DoctestRenderer(document);
+    chrome.extension.sendRequest({action: "get_items"}, function(response) {
+        dt.items = response.items;
+        dt.render();
+    });
 }
-
 //--></script>
 </head>
 <body onload="onpageload()"></body>
