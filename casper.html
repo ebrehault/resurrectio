@@ -239,22 +239,7 @@ CasperRenderer.prototype.change = function(item) {
   var way = this.getControlWay(item);
   var value = this.pyrepr(item.info.value)
   this.stmt('casper.then(function() {');
-  if (type == 'checkbox' || type == 'radio') {
-    var selected;
-    if (item.info.checked)
-      selected = 'True'
-    else
-      selected = 'False'
-
-    if (item.info.value == 'on'){
-      this.stmt('browser.getControl(' + way + ').selected = ' + selected);
-    } else {
-      this.stmt('browser.getControl(' + way + ').getControl(value=' + value
-                + ').selected = ' + selected);
-    }
-  } else {
-    this.stmt('    this.fill("' + this.getFormSelector(item) + '", {"' + item.info.name + '": "'+ item.info.value +'"});');
-  }
+  this.stmt('    this.fill("' + this.getFormSelector(item) + '", {"' + item.info.name + '": "'+ item.info.value +'"});');
   this.stmt('});');
 }
 
