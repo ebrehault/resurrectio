@@ -7,6 +7,12 @@ Resurrection is a Chrome extension allowing to record a sequence of browser
 actions and to produce the corresponding `CasperJS  <http://casperjs.org/>`_
 script.
 
+Compare to Selenium, **CasperJS evaluates Javascript**, so your test will not
+be limited to pure HTML interactions.
+
+Resurrection also provides a way to produce screenshots alongside your test
+scenario.
+
 Installation
 ============
 
@@ -59,6 +65,12 @@ Copy/paste the resulting code into a local file, and run the test::
     casperjs my_scenario.js
 
 It will play your entire scenario and produce the screenshots.
+
+Future feature
+==============
+
+Export comments + screenshots in ReStructuredText in order to generate
+documentation automatically from the tests.
 
 Credits
 =======
