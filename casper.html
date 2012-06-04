@@ -39,6 +39,7 @@ function CasperRenderer(document) {
   this.title = "Testcase";
   this.items = null;
   this.history = new Array();
+  this.screen_id = 1;
 }
 
 CasperRenderer.prototype.text = function(txt) {
@@ -251,8 +252,9 @@ CasperRenderer.prototype.submit = function(item) {
 
 CasperRenderer.prototype.screenShot = function(item) {
   this.stmt('casper.then(function() {');
-  this.stmt('    this.captureSelector("screenshot1.png", "html");');
+  this.stmt('    this.captureSelector("screenshot'+this.screen_id+'.png", "html");');
   this.stmt('});');
+  this.screen_id = this.screen_id + 1;
 }
 
 CasperRenderer.prototype.comment = function(item) {
