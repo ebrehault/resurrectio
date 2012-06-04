@@ -77,6 +77,8 @@ RecorderUI.prototype.set_started = function() {
   e.style.display = '';
   e = document.getElementById("bexport");
   e.style.display = 'none';
+  e = document.getElementById("bdoc");
+  e.style.display = 'none';
 }
 
 RecorderUI.prototype.stop = function() {
@@ -93,7 +95,9 @@ RecorderUI.prototype.set_stopped = function() {
 	e = document.getElementById("bcomment");
 	e.style.display = 'none';
 	e = document.getElementById("bexport");
-	  e.style.display = '';
+	e.style.display = '';
+    e = document.getElementById("bdoc");
+    e.style.display = '';
 }
 RecorderUI.prototype.goto = function(targeturl) {
 	chrome.tabs.getSelected(null, function(tab) {
@@ -130,6 +134,9 @@ RecorderUI.prototype.hidecomment = function(bsave) {
 RecorderUI.prototype.export = function(bexport) {
 	chrome.tabs.create({url: "./casper.html"});
 }
+RecorderUI.prototype.exportdoc = function(bexport) {
+    chrome.tabs.create({url: "./doc.html"});
+}
 var ui = new RecorderUI();
 //--></script>
 
@@ -144,9 +151,14 @@ var ui = new RecorderUI();
    style="display:none;"
    onclick="ui.stop(); return false;"> 
   <input type="submit" id="bcomment" name="bcomment" value="Add Comment"
+   style="display: none;"
    onclick="ui.showcomment(); return false;">
-  <input type="submit" id="bexport" name="bexport" value="Export Casper test"
+  <input type="submit" id="bexport" name="bexport" value="Export CasperJS"
+   style="display: none;"
    onclick="ui.export(); return false;"> 
+  <input type="submit" id="bdoc" name="bdoc" value="Export doc"
+   style="display: none;"
+   onclick="ui.exportdoc(); return false;"> 
 </div> 
 <div id="comment" style="display:none">
   <strong>Comment:</strong> 

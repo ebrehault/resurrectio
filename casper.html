@@ -258,9 +258,12 @@ CasperRenderer.prototype.screenShot = function(item) {
 }
 
 CasperRenderer.prototype.comment = function(item) {
-  this.stmt('casper.then(function() {');
-  this.stmt('    this.test.comment("'+item.text+'");');
-  this.stmt('});');
+	var lines = item.text.split('\n');
+	this.stmt('casper.then(function() {');
+	for (var i=0; i < lines.length; i++) {
+	  this.stmt('    this.test.comment("'+lines[i]+'");');
+	}
+	this.stmt('});');
 }
 
 CasperRenderer.prototype.checkPageTitle = function(item) {
