@@ -133,9 +133,18 @@ CasperRenderer.prototype.writeHeader = function() {
   this.space();
   this.stmt("var x = require('casper').selectXPath;");
   this.stmt("var casper = require('casper').create(");
-  this.stmt("	  {viewportSize: {");
-  this.stmt("	        width: 1280, height: 768}}");
-  this.stmt(");");
+  this.stmt("	  {viewportSize:");
+  this.stmt("	       {width: 1280, height: 768}");
+  this.stmt("});");
+  this.stmt("//Be able to select links by inner text produces more stable");
+  this.stmt("//testcases. We inject it in a custom property, so CSS selectors can be used.");
+  this.stmt("casper.on('load.finished', function() {");
+  this.stmt("   casper.evaluate(function() {");
+  this.stmt("       var links = document.querySelectorAll('a');");
+  this.stmt("       for(var i=0;i&lt;links.length;i++) {links[i].setAttribute('data-text', links[i].innerText);}");
+  this.stmt("   });");
+  this.stmt("});");
+
 }
 CasperRenderer.prototype.writeFooter = function() {
 	  this.space();
@@ -177,10 +186,25 @@ CasperRenderer.prototype.normalizeWhitespace = function(s) {
   return s.replace(/^\s*/, '').replace(/\s*$/, '').replace(/\s+/g, ' ');
 }
 
-CasperRenderer.prototype.getControlWay = function(item) {
+CasperRenderer.prototype.getControl = function(item) {
+  var type = item.info.type;
+  var selector;
+  if ((type == "submit" || type == "button") && item.info.value)
+    selector = 'input[type='+type+'][value='+this.pyrepr(this.normalizeWhitespace(item.info.value))+']';
+  else if (item.info.name)
+	selector = 'input[name='+this.pyrepr(item.info.name)+']';
+  else if (item.info.id)
+	selector = 'input#'+item.info.name;
+  else
+	selector = 'TODO';
+
+  return selector;
+}
+	
+CasperRenderer.prototype.getControlXPath = function(item) {
   var type = item.info.type;
   var way;
-  if (type == "submit" || type == "button")
+  if ((type == "submit" || type == "button") && item.info.value)
     way = '@value=' + this.pyrepr(this.normalizeWhitespace(item.info.value));
   else if (item.info.name)
     way = '@name=' + this.pyrepr(item.info.name);
@@ -192,7 +216,23 @@ CasperRenderer.prototype.getControlWay = function(item) {
   return way;
 }
 
-CasperRenderer.prototype.getLinkWay = function(item) {
+CasperRenderer.prototype.getLink = function(item) {
+  var selector;
+  if (item.text)
+	selector = 'a[data-text='+this.pyrepr(this.normalizeWhitespace(item.text))+']';
+  else if (item.info.id)
+	selector = 'a#'+item.info.id;
+  else if (item.info.href)
+	selector = 'a[href='+this.pyrepr(this.shortUrl(item.info.href))+']'
+  else if (item.info.title)
+    selector = 'a[title='+this.pyrepr(this.normalizeWhitespace(item.info.title))+']';
+  else 
+	selector = 'TODO';
+
+  return selector;
+}
+
+CasperRenderer.prototype.getLinkXPath = function(item) {
   var way;
   if (item.text)
     way = 'text()=' + this.pyrepr(this.normalizeWhitespace(item.text));
@@ -200,44 +240,45 @@ CasperRenderer.prototype.getLinkWay = function(item) {
     way = '@id=' + this.pyrepr(item.info.id);
   else if (item.info.href)
     way = '@href=' + this.pyrepr(this.shortUrl(item.info.href));
-  else
+  else if (item.info.title)
+    way = 'title='+this.pyrepr(this.normalizeWhitespace(item.info.title));
+  else 
     way = 'TODO';
 
   return way;
 }
-
+	
 CasperRenderer.prototype.click = function(item) {
   var tag = item.info.tagName.toLowerCase();
-  var way;
+  var selector;
   if (tag == 'a') {
-    way = this.getLinkWay(item)
-  } else if (tag == 'input') {
-    way = this.getControlWay(item)
+    selector = this.getLink(item);
+  } else if (tag == 'input' || tag == 'button') {
+	selector = this.getFormSelector(item) + ' ' + this.getControl(item);
   }
   this.stmt('casper.then(function() {');
-  this.stmt('    this.test.assertExists(x("//'+tag+'[' + way + ']"));');
-  this.stmt('    this.click(x("//'+tag+'[' + way + ']"));');
+  this.stmt('    this.test.assertExists("'+ selector + '");');
+  this.stmt('    this.click("'+ selector + '");');
   this.stmt('});');
 }
 
-CasperRenderer.prototype.getControl = function(item) {
-  return '// TODO';
-}
 CasperRenderer.prototype.getFormSelector = function(item) {
 	var info = item.info;
 	if(!info.form) {
-		return '';
+		return 'form';
 	}
 	if(info.form.id) {
 		return "form#" + info.form.id;
-	} else {
+	} else if(info.form.name) {
 		return "form[name=" + info.form.name + "]";
+	} else {
+		return "form";
 	}
 }
 
 CasperRenderer.prototype.change = function(item) {
   var type = item.info.type;
-  var way = this.getControlWay(item);
+  var way = this.getControlXPath(item);
   var value = this.pyrepr(item.info.value)
   this.stmt('casper.then(function() {');
   this.stmt('    this.fill("' + this.getFormSelector(item) + '", {"' + item.info.name + '": "'+ item.info.value +'"});');
@@ -288,7 +329,7 @@ CasperRenderer.prototype.checkTextPresent = function(item) {
 
 CasperRenderer.prototype.checkValue = function(item) {
   var type = item.info.type;
-  var way = this.getControlWay(item);
+  var way = this.getControlXPath(item);
   if (type == 'checkbox' || type == 'radio') {
     var selected;
     if (item.info.checked)
@@ -322,7 +363,7 @@ CasperRenderer.prototype.checkText = function(item) {
 }
 
 CasperRenderer.prototype.checkHref = function(item) {
-	var way = this.getLinkWay(item);
+	var selector = this.getLinkXPath(item);
 	var href = this.pyrepr(this.shortUrl(item.info.href));
     this.stmt('casper.then(function() {');
     this.stmt('    this.test.assertExists(x("//a[' + way + ' and @href='+ href +']"));');
@@ -330,7 +371,7 @@ CasperRenderer.prototype.checkHref = function(item) {
 }
 
 CasperRenderer.prototype.checkEnabled = function(item) {
-	  var way = this.getControlWay(item);
+	  var way = this.getControlXPath(item);
 	  var tag = item.info.tagName.toLowerCase();
 	  this.stmt('casper.then(function() {');
 	  this.stmt('    this.test.assertExists(x("//'+tag+'[' + way + ' and not(@disabled)]"));');
@@ -338,7 +379,7 @@ CasperRenderer.prototype.checkEnabled = function(item) {
 }
 
 CasperRenderer.prototype.checkDisabled = function(item) {
-  var way = this.getControlWay(item);
+  var way = this.getControlXPath(item);
   var tag = item.info.tagName.toLowerCase();
   this.stmt('casper.then(function() {');
   this.stmt('    this.test.assertExists(x("//'+tag+'[' + way + ' and @disabled]"));');
@@ -347,7 +388,7 @@ CasperRenderer.prototype.checkDisabled = function(item) {
 
 CasperRenderer.prototype.checkSelectValue = function(item) {
   var value = this.pyrepr(item.info.value);
-  var way = this.getControlWay(item);
+  var way = this.getControlXPath(item);
   this.stmt('casper.then(function() {');
   this.stmt('    this.test.assertExists(x("//select[' + way + ']/options[@selected and @value='+value+']"));');
   this.stmt('});');
