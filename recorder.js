@@ -324,6 +324,7 @@ TestRecorder.ElementInfo = function(element) {
 	  this.form = {id: element.form.id, name: element.form.name};
   this.src = element.src;
   this.id = element.id;
+  this.title = element.title;
   this.options = [];
   if (element.selectedIndex) {
     for (var i=0; i < element.options.length; i++) {
