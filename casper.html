@@ -136,12 +136,17 @@ CasperRenderer.prototype.writeHeader = function() {
   this.stmt("	  {viewportSize:");
   this.stmt("	       {width: 1280, height: 768}");
   this.stmt("});");
-  this.stmt("//Be able to select links by inner text produces more stable");
-  this.stmt("//testcases. We inject it in a custom property, so CSS selectors can be used.");
+  this.stmt("// Be able to select links by inner text produces more stable");
+  this.stmt("// testcases. We re-inject inner text as custom property, so CSS");
+  this.stmt("// selectors can be used.");
   this.stmt("casper.on('load.finished', function() {");
   this.stmt("   casper.evaluate(function() {");
   this.stmt("       var links = document.querySelectorAll('a');");
-  this.stmt("       for(var i=0;i&lt;links.length;i++) {links[i].setAttribute('data-text', links[i].innerText);}");
+  this.stmt("       var range = document.createRange();");
+  this.stmt("       for(var i=0;i&lt;links.length;i++) {");
+  this.stmt("       		  range.selectNodeContents(links[i]);");
+  this.stmt("                 links[i].setAttribute('data-text', range.toString());");
+  this.stmt("       }");
   this.stmt("   });");
   this.stmt("});");
 
@@ -267,10 +272,10 @@ CasperRenderer.prototype.getFormSelector = function(item) {
 	if(!info.form) {
 		return 'form';
 	}
-	if(info.form.id) {
+	if(info.form.name) {
+        return "form[name=" + info.form.name + "]";
+    } else if(info.form.id) {
 		return "form#" + info.form.id;
-	} else if(info.form.name) {
-		return "form[name=" + info.form.name + "]";
 	} else {
 		return "form";
 	}
