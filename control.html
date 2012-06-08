@@ -44,6 +44,9 @@ function RecorderUI() {
 	    if (response.active) {
 	    	ui.set_started();
 	    } else {
+	    	if (!response.empty) {
+	            ui.set_stopped();
+	        }
 	        chrome.tabs.getSelected(null, function(tab) {
                   document.forms[0].elements["url"].value = tab.url;
             });
