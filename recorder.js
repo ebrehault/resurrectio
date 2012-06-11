@@ -386,6 +386,8 @@ TestRecorder.ScreenShotEvent = function() {
 TestRecorder.OpenURLEvent = function(url) {
   this.type = TestRecorder.EventTypes.OpenUrl;
   this.url = url;
+  this.width = window.innerWidth;
+  this.height = window.innerHeight;
 }
 
 TestRecorder.PageLoadEvent = function(url) {

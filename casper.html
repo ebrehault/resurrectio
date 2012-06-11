@@ -132,10 +132,7 @@ CasperRenderer.prototype.writeHeader = function() {
   this.text("//==============================================================================");
   this.space();
   this.stmt("var x = require('casper').selectXPath;");
-  this.stmt("var casper = require('casper').create(");
-  this.stmt("	  {viewportSize:");
-  this.stmt("	       {width: 1280, height: 768}");
-  this.stmt("});");
+  this.stmt("var casper = require('casper').create();");
   this.stmt("// Be able to select links by inner text produces more stable");
   this.stmt("// testcases. We re-inject inner text as custom property, so CSS");
   this.stmt("// selectors can be used.");
@@ -177,6 +174,7 @@ CasperRenderer.prototype.openUrl = function(item) {
 	  if(history.length > 0) {
 		  this.stmt("casper.thenOpen(" + url + ");");
 	  } else {
+		  this.stmt("casper.options.viewportSize = {width: "+item.width+", height: "+item.height+"};");
 		  this.stmt("casper.start(" + url + ");");		  
 	  }
   }
