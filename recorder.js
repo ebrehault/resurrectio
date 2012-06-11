@@ -54,37 +54,15 @@ if (typeof(TestRecorder.Browser) == "undefined") {
 TestRecorder.Browser.captureEvent = function(wnd, name, func) {
   var lname = name.toLowerCase();
   var doc = wnd.document;
-//  if (doc.layers && wnd.captureEvents) {
-    wnd.captureEvents(Event[name.toUpperCase()]);
-    wnd["on" + lname] = func;
-//  }
-//  else if (doc.all && !doc.getElementById) {
-//    doc["on" + lname] = func;
-//  }
-//  else if (doc.all && doc.attachEvent) {
-//    doc.attachEvent("on" + lname, func);
-//  }
-//  else if (doc.addEventListener) {
-//    doc.addEventListener(lname, func, true);
-//  }
+  wnd.captureEvents(Event[name.toUpperCase()]);
+  wnd["on" + lname] = func;
 }
 
 TestRecorder.Browser.releaseEvent = function(wnd, name, func) {
   var lname = name.toLowerCase();
   var doc = wnd.document;
-//  if (doc.layers && wnd.releaseEvents) {
-    wnd.releaseEvents(Event[name.toUpperCase()]);
-    wnd["on" + lname] = null;
-//  }
-//  else if (doc.all && !doc.getElementById) {
-//    doc["on" + lname] = null;
-//  }
-//  else if (doc.all && doc.attachEvent) {
-//    doc.detachEvent("on" + lname, func);
-//  }
-//  else if (doc.addEventListener) {
-//    doc.removeEventListener(lname, func, true);
-//  }
+  wnd.releaseEvents(Event[name.toUpperCase()]);
+  wnd["on" + lname] = null;
 }
 
 TestRecorder.Browser.getSelection = function(wnd) {
@@ -308,6 +286,8 @@ TestRecorder.EventTypes.CheckSelectOptions = 15;
 TestRecorder.EventTypes.CheckImageSrc = 16;
 TestRecorder.EventTypes.PageLoad = 17;
 TestRecorder.EventTypes.ScreenShot = 18;
+TestRecorder.EventTypes.MouseDown = 19;
+TestRecorder.EventTypes.MouseUp = 20;
 
 TestRecorder.ElementInfo = function(element) {
   this.action = element.action;
@@ -391,6 +371,12 @@ TestRecorder.ElementEvent = function(type, target, text) {
 TestRecorder.CommentEvent = function(text) {
   this.type = TestRecorder.EventTypes.Comment;
   this.text = text;
+}
+
+TestRecorder.MouseEvent = function(type, x, y) {
+  this.type = type;
+  this.x = x;
+  this.y = y;
 }
 
 TestRecorder.ScreenShotEvent = function() {
@@ -809,6 +795,11 @@ TestRecorder.Recorder.prototype.clickaction = function(e) {
     if (t.href || (t.type && t.type == "submit") || 
        (t.type && t.type == "submit")) {
       this.testcase.append(new TestRecorder.ElementEvent(et.Click,e.target()));
+    } else {
+     recorder.testcase.append(
+       new TestRecorder.MouseEvent(
+		  TestRecorder.EventTypes.Click, e.posX(), e.posY()
+	   ));
     }
   }
 }
@@ -886,7 +877,6 @@ TestRecorder.Recorder.prototype.onsubmit = function(e) {
   recorder.log("submit: " + e.target());
 }
 
-
 // The dance here between onclick and oncontextmenu requires a bit of 
 // explanation. IE and Moz/Firefox have wildly different behaviors when 
 // a right-click occurs. IE6 fires only an oncontextmenu event; Firefox 
@@ -905,30 +895,21 @@ TestRecorder.Recorder.prototype.onclick = function(e) {
     return false;
   }
 
-//  if (!document.all) {
-    if (e.button() == TestRecorder.Event.RightButton) {
-      recorder.check(e);
-      return true;
-    }
-    else if (e.button() == TestRecorder.Event.LeftButton) {
-      recorder.clickaction(e);
-      return true;
-    }
-    e.stopPropagation();
-    e.preventDefault();
-    return false;
-//  }
-//  else {
-//    recorder.clickaction(e);
-//    return true;
-//  }
+  if (e.button() == TestRecorder.Event.RightButton) {
+	recorder.check(e);
+	return true;
+  } else if (e.button() == TestRecorder.Event.LeftButton) {
+	recorder.clickaction(e);
+	return true;
+  }
+  e.stopPropagation();
+  e.preventDefault();
+  return false;
 }
 
 TestRecorder.Recorder.prototype.oncontextmenu = function(e) {
   var e = new TestRecorder.Event(e);
-//  if (document.all) {
-    recorder.check(e);
-//  }
+  recorder.check(e);
   e.stopPropagation();
   e.preventDefault();
   return false;

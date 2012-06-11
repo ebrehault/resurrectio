@@ -254,17 +254,23 @@ CasperRenderer.prototype.getLinkXPath = function(item) {
 }
 	
 CasperRenderer.prototype.click = function(item) {
-  var tag = item.info.tagName.toLowerCase();
-  var selector;
-  if (tag == 'a') {
-    selector = this.getLink(item);
-  } else if (tag == 'input' || tag == 'button') {
-	selector = this.getFormSelector(item) + ' ' + this.getControl(item);
+  if(item.x) {
+	this.stmt('casper.then(function() {');
+	this.stmt('    this.mouse.click('+ item.x + ', '+ item.y +');');
+	this.stmt('});');
+  } else {
+	var tag = item.info.tagName.toLowerCase();
+	var selector;
+	if (tag == 'a') {
+	  selector = this.getLink(item);
+	} else if (tag == 'input' || tag == 'button') {
+	  selector = this.getFormSelector(item) + ' ' + this.getControl(item);
+	}
+	this.stmt('casper.then(function() {');
+	this.stmt('    this.test.assertExists("'+ selector + '");');
+	this.stmt('    this.click("'+ selector + '");');
+	this.stmt('});');
   }
-  this.stmt('casper.then(function() {');
-  this.stmt('    this.test.assertExists("'+ selector + '");');
-  this.stmt('    this.click("'+ selector + '");');
-  this.stmt('});');
 }
 
 CasperRenderer.prototype.getFormSelector = function(item) {
