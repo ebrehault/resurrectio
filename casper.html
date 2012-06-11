@@ -133,20 +133,6 @@ CasperRenderer.prototype.writeHeader = function() {
   this.space();
   this.stmt("var x = require('casper').selectXPath;");
   this.stmt("var casper = require('casper').create();");
-  this.stmt("// Be able to select links by inner text produces more stable");
-  this.stmt("// testcases. We re-inject inner text as custom property, so CSS");
-  this.stmt("// selectors can be used.");
-  this.stmt("casper.on('load.finished', function() {");
-  this.stmt("   casper.evaluate(function() {");
-  this.stmt("       var links = document.querySelectorAll('a');");
-  this.stmt("       var range = document.createRange();");
-  this.stmt("       for(var i=0;i&lt;links.length;i++) {");
-  this.stmt("       		  range.selectNodeContents(links[i]);");
-  this.stmt("                 links[i].setAttribute('data-text', range.toString());");
-  this.stmt("       }");
-  this.stmt("   });");
-  this.stmt("});");
-
 }
 CasperRenderer.prototype.writeFooter = function() {
 	  this.space();
@@ -191,13 +177,14 @@ CasperRenderer.prototype.normalizeWhitespace = function(s) {
 
 CasperRenderer.prototype.getControl = function(item) {
   var type = item.info.type;
+  var tag = item.info.tagName.toLowerCase();
   var selector;
   if ((type == "submit" || type == "button") && item.info.value)
-    selector = 'input[type='+type+'][value='+this.pyrepr(this.normalizeWhitespace(item.info.value))+']';
+    selector = tag+'[type='+type+'][value='+this.pyrepr(this.normalizeWhitespace(item.info.value))+']';
   else if (item.info.name)
-	selector = 'input[name='+this.pyrepr(item.info.name)+']';
+	selector = tag+'[name='+this.pyrepr(item.info.name)+']';
   else if (item.info.id)
-	selector = 'input#'+item.info.name;
+	selector = tag+'#'+item.info.id;
   else
 	selector = 'TODO';
 
@@ -217,22 +204,6 @@ CasperRenderer.prototype.getControlXPath = function(item) {
     way = 'TODO';
 
   return way;
-}
-
-CasperRenderer.prototype.getLink = function(item) {
-  var selector;
-  if (item.text)
-	selector = 'a[data-text='+this.pyrepr(this.normalizeWhitespace(item.text))+']';
-  else if (item.info.id)
-	selector = 'a#'+item.info.id;
-  else if (item.info.href)
-	selector = 'a[href='+this.pyrepr(this.shortUrl(item.info.href))+']'
-  else if (item.info.title)
-    selector = 'a[title='+this.pyrepr(this.normalizeWhitespace(item.info.title))+']';
-  else 
-	selector = 'TODO';
-
-  return selector;
 }
 
 CasperRenderer.prototype.getLinkXPath = function(item) {
@@ -260,13 +231,14 @@ CasperRenderer.prototype.click = function(item) {
 	var tag = item.info.tagName.toLowerCase();
 	var selector;
 	if (tag == 'a') {
-	  selector = this.getLink(item);
+	  selector = 'x("//a['+this.getLinkXPath(item)+']")';
 	} else if (tag == 'input' || tag == 'button') {
 	  selector = this.getFormSelector(item) + ' ' + this.getControl(item);
+	  selector = '"' + selector + '"';
 	}
 	this.stmt('casper.then(function() {');
-	this.stmt('    this.test.assertExists("'+ selector + '");');
-	this.stmt('    this.click("'+ selector + '");');
+	this.stmt('    this.test.assertExists('+ selector + ');');
+	this.stmt('    this.click('+ selector + ');');
 	this.stmt('});');
   }
 }
