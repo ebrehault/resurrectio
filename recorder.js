@@ -288,6 +288,8 @@ TestRecorder.EventTypes.PageLoad = 17;
 TestRecorder.EventTypes.ScreenShot = 18;
 TestRecorder.EventTypes.MouseDown = 19;
 TestRecorder.EventTypes.MouseUp = 20;
+TestRecorder.EventTypes.MouseDrag = 21;
+TestRecorder.EventTypes.MouseDrop = 22;
 
 TestRecorder.ElementInfo = function(element) {
   this.action = element.action;
@@ -731,7 +733,7 @@ TestRecorder.Recorder = function() {
 // stable reference to the instance.
 
 recorder = new TestRecorder.Recorder();
-
+recorder.logfunc = function(msg) {console.log(msg);};
 
 TestRecorder.Recorder.prototype.start = function() {
   this.window = window;
@@ -764,6 +766,9 @@ TestRecorder.Recorder.prototype.pageLoad = function() {
 TestRecorder.Recorder.prototype.captureEvents = function() {
   var wnd = this.window;
   TestRecorder.Browser.captureEvent(wnd, "contextmenu", this.oncontextmenu);
+  TestRecorder.Browser.captureEvent(wnd, "drag", this.ondrag);
+  TestRecorder.Browser.captureEvent(wnd, "mousedown", this.onmousedown);
+  TestRecorder.Browser.captureEvent(wnd, "mouseup", this.onmouseup);
   TestRecorder.Browser.captureEvent(wnd, "click", this.onclick);
   TestRecorder.Browser.captureEvent(wnd, "change", this.onchange);
   TestRecorder.Browser.captureEvent(wnd, "keypress", this.onkeypress);
@@ -774,6 +779,9 @@ TestRecorder.Recorder.prototype.captureEvents = function() {
 TestRecorder.Recorder.prototype.releaseEvents = function() {
   var wnd = this.window;
   TestRecorder.Browser.releaseEvent(wnd, "contextmenu", this.oncontextmenu);
+  TestRecorder.Browser.releaseEvent(wnd, "drag", this.ondrag);
+  TestRecorder.Browser.releaseEvent(wnd, "mousedown", this.onmousedown);
+  TestRecorder.Browser.releaseEvent(wnd, "mouseup", this.onmouseup);
   TestRecorder.Browser.releaseEvent(wnd, "click", this.onclick);
   TestRecorder.Browser.releaseEvent(wnd, "change", this.onchange);
   TestRecorder.Browser.releaseEvent(wnd, "keypress", this.onkeypress);
@@ -879,6 +887,29 @@ TestRecorder.Recorder.prototype.onsubmit = function(e) {
   recorder.log("submit: " + e.target());
 }
 
+TestRecorder.Recorder.prototype.ondrag = function(e) {
+  var e = new TestRecorder.Event(e);
+  recorder.testcase.append(
+       new TestRecorder.MouseEvent(
+		  TestRecorder.EventTypes.MouseDrag, e.posX(), e.posY()
+	   ));
+}
+TestRecorder.Recorder.prototype.onmousedown = function(e) {
+	recorder.log("down!");
+  var e = new TestRecorder.Event(e);
+  recorder.testcase.append(
+       new TestRecorder.MouseEvent(
+		  TestRecorder.EventTypes.MouseDown, e.posX(), e.posY()
+	   ));
+}
+TestRecorder.Recorder.prototype.onmouseup = function(e) {
+	recorder.log("up!");
+  var e = new TestRecorder.Event(e);
+  recorder.testcase.append(
+       new TestRecorder.MouseEvent(
+		  TestRecorder.EventTypes.MouseUp, e.posX(), e.posY()
+	   ));
+}
 // The dance here between onclick and oncontextmenu requires a bit of 
 // explanation. IE and Moz/Firefox have wildly different behaviors when 
 // a right-click occurs. IE6 fires only an oncontextmenu event; Firefox 
