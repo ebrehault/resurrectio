@@ -3,15 +3,20 @@ Resurrectio
 
 **Any phantom deserves a resurrection.**
 
-Resurrection is a Chrome extension allowing to record a sequence of browser
+Resurrectio is a Chrome extension allowing to record a sequence of browser
 actions and to produce the corresponding `CasperJS  <http://casperjs.org/>`_
 script.
 
-Compare to Selenium, **CasperJS evaluates Javascript**, so your test will not
-be limited to pure HTML interactions.
+Resurrectio uses minimalist and functional-oriented selectors, so recorded
+sequences keep valid across layout and design changes.
 
-Resurrection also provides a way to produce screenshots alongside your test
-scenario.
+As **CasperJS evaluates Javascript**, recorded sequences are not be limited
+to pure HTML interactions, targeted pages javascript-supported behaviors will
+be accurately reproduced.
+
+Resurrectio also provides a way to produce **screenshots** alongside your test
+scenario, and can export comments + screenshots in ReStructuredText format in
+order to generate documentation automatically from the test sequences.
 
 Installation
 ============
@@ -69,11 +74,10 @@ Copy/paste the resulting code into a local file, and run the test::
 
 It will play your entire scenario and produce the screenshots.
 
-Future feature
-==============
+Future features
+===============
 
-Export comments + screenshots in ReStructuredText in order to generate
-documentation automatically from the tests.
+Implement more mouse events, like drag&drop and mousewheel.
 
 Credits
 =======
