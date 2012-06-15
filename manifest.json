@@ -1,8 +1,8 @@
 {
   "name": "Resurrectio",
-  "version": "1.0",
+  "version": "0.1",
   "manifest_version": 1,
-  "description": "CasperJS test recorder",
+  "description": "Functional-oriented and javascript-friendly test recorder. Recorded sequences are exported as CasperJS scripts. It also allows to produce screenshots.",
   "icons": {"48": "makina-icon.png",
           "128": "makina-icon-128.png" },
   "browser_action": {
