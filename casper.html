@@ -109,6 +109,11 @@ CasperRenderer.prototype.render = function() {
     var item = this.items[i];
     if (item.type == etypes.Comment)
       this.space();
+    
+    if(i==0) {
+        this.startUrl(item);
+        continue;
+    }
     if(i>1) {
         var before = this.items[i-1];
         // we do not want click due to user checking actions
@@ -174,6 +179,11 @@ CasperRenderer.prototype.shortUrl = function(url) {
   return url.substr(url.indexOf('/', 10), 999999999);
 }
 
+CasperRenderer.prototype.startUrl = function(item) {
+  var url = this.pyrepr(this.rewriteUrl(item.url));
+  this.stmt("casper.options.viewportSize = {width: "+item.width+", height: "+item.height+"};");
+  this.stmt("casper.start(" + url + ");");        
+}
 CasperRenderer.prototype.openUrl = function(item) {
   var url = this.pyrepr(this.rewriteUrl(item.url));
   var history = this.history;
@@ -185,12 +195,7 @@ CasperRenderer.prototype.openUrl = function(item) {
 	  history.pop();
 	  history.pop();
   } else {
-	  if(history.length > 0) {
-		  this.stmt("casper.thenOpen(" + url + ");");
-	  } else {
-		  this.stmt("casper.options.viewportSize = {width: "+item.width+", height: "+item.height+"};");
-		  this.stmt("casper.start(" + url + ");");		  
-	  }
+	  this.stmt("casper.thenOpen(" + url + ");");
   }
 }
 
