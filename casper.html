@@ -111,8 +111,12 @@ CasperRenderer.prototype.render = function() {
       this.space();
     
     if(i==0) {
-        this.startUrl(item);
-        continue;
+        if(item.type!=etypes.OpenUrl) {
+            this.text("ERROR: the recorded sequence does not start with a url openning.");
+        } else {
+	        this.startUrl(item);
+	        continue;
+        }
     }
     if(i>1) {
         var before = this.items[i-1];
