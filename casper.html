@@ -280,9 +280,13 @@ CasperRenderer.prototype.click = function(item) {
 	  selector = this.getFormSelector(item) + ' ' + this.getControl(item);
 	  selector = '"' + selector + '"';
 	}
-	this.stmt('casper.then(function() {');
-	this.stmt('    this.test.assertExists('+ selector + ');');
-	this.stmt('    this.click('+ selector + ');');
+	this.stmt('casper.waitForSelector('+ selector + ',');
+    this.stmt('    function success() {');
+	this.stmt('        this.test.assertExists('+ selector + ');');
+	this.stmt('        this.click('+ selector + ');');
+	this.stmt('    },');
+    this.stmt('    function fail() {');
+    this.stmt('        this.test.assertExists(' + selector + ');')
 	this.stmt('});');
   }
 }
@@ -305,8 +309,12 @@ CasperRenderer.prototype.change = function(item) {
   var type = item.info.type;
   var way = this.getControlXPath(item);
   var value = this.pyrepr(item.info.value)
-  this.stmt('casper.then(function() {');
-  this.stmt('    this.fill("' + this.getFormSelector(item) + '", {"' + item.info.name + '": "'+ item.info.value +'"});');
+  this.stmt('casper.waitForSelector("' + this.getFormSelector(item) + '",');
+  this.stmt('    function success() {');
+  this.stmt('        this.fill("' + this.getFormSelector(item) + '", {"' + item.info.name + '": "'+ item.info.value +'"});');
+  this.stmt('    },');
+  this.stmt('    function fail() {');
+  this.stmt('        this.test.assertExists("' + this.getFormSelector(item) + '");')
   this.stmt('});');
 }
 
@@ -317,6 +325,10 @@ CasperRenderer.prototype.submit = function(item) {
 }
 
 CasperRenderer.prototype.screenShot = function(item) {
+  // wait 1 second is not the ideal solution, but will be enough most
+  // part of time. For slow pages, an assert before capture will make
+  // sure evrything is properly loaded before screenshot.
+  this.stmt('casper.wait(1000);');
   this.stmt('casper.then(function() {');
   this.stmt('    this.captureSelector("screenshot'+this.screen_id+'.png", "html");');
   this.stmt('});');
@@ -347,44 +359,38 @@ CasperRenderer.prototype.checkPageLocation = function(item) {
 }
 
 CasperRenderer.prototype.checkTextPresent = function(item) {
-  this.stmt('casper.then(function() {');
-  this.stmt('    this.test.assertTextExists(' + this.pyrepr(item.text) + ');')
-  this.stmt('});');
+    var selector = 'x("//*[contains(text(), '+this.pyrepr(item.text)+')]")';
+    this.waitAndTestSelector(selector);
 }
 
 CasperRenderer.prototype.checkValue = function(item) {
   var type = item.info.type;
   var way = this.getControlXPath(item);
+  var selector = '';
   if (type == 'checkbox' || type == 'radio') {
     var selected;
     if (item.info.checked)
       selected = '@checked'
     else
       selected = 'not(@checked)'
-    this.stmt('casper.then(function() {');
-    this.stmt('    this.test.assertExists(x("//input[' + way + ' and ' +selected+ ']"));');
-    this.stmt('});');
+    selector = 'x("//input[' + way + ' and ' +selected+ ']")';
   }
   else {
     var value = this.pyrepr(item.info.value)
     var tag = item.info.tagName.toLowerCase();
-    this.stmt('casper.then(function() {');
-    this.stmt('    this.test.assertExists(x("//'+tag+'[' + way + ' and @value='+value+']"));');
-    this.stmt('});');
+    selector = 'x("//'+tag+'[' + way + ' and @value='+value+']")';
   }
+  this.waitAndTestSelector(selector);
 }
 
 CasperRenderer.prototype.checkText = function(item) {
+  var selector = '';
   if ((item.info.type == "submit") || (item.info.type == "button")) {
-    this.stmt('casper.then(function() {');
-    this.stmt('    this.test.assertExists(x("//input[@value='+this.pyrepr(item.text)+']"));');
-    this.stmt('});');
+      selector = 'x("//input[@value='+this.pyrepr(item.text)+']")';
+  } else {
+      selector = 'x("//*[text()='+this.pyrepr(item.text)+']")';
   }
-  else {
-    this.stmt('casper.then(function() {');
-    this.stmt('    this.test.assertTextExists(' + this.pyrepr(item.text) + ');')
-    this.stmt('});');
-  }
+  this.waitAndTestSelector(selector);
 }
 
 CasperRenderer.prototype.checkHref = function(item) {
@@ -398,25 +404,19 @@ CasperRenderer.prototype.checkHref = function(item) {
 CasperRenderer.prototype.checkEnabled = function(item) {
 	  var way = this.getControlXPath(item);
 	  var tag = item.info.tagName.toLowerCase();
-	  this.stmt('casper.then(function() {');
-	  this.stmt('    this.test.assertExists(x("//'+tag+'[' + way + ' and not(@disabled)]"));');
-	  this.stmt('});');
+	  this.waitAndTestSelector('x("//'+tag+'[' + way + ' and not(@disabled)]")');
 }
 
 CasperRenderer.prototype.checkDisabled = function(item) {
   var way = this.getControlXPath(item);
   var tag = item.info.tagName.toLowerCase();
-  this.stmt('casper.then(function() {');
-  this.stmt('    this.test.assertExists(x("//'+tag+'[' + way + ' and @disabled]"));');
-  this.stmt('});');
+  this.waitAndTestSelector('x("//'+tag+'[' + way + ' and @disabled]")');
 }
 
 CasperRenderer.prototype.checkSelectValue = function(item) {
   var value = this.pyrepr(item.info.value);
   var way = this.getControlXPath(item);
-  this.stmt('casper.then(function() {');
-  this.stmt('    this.test.assertExists(x("//select[' + way + ']/options[@selected and @value='+value+']"));');
-  this.stmt('});');
+  this.waitAndTestSelector('x("//select[' + way + ']/options[@selected and @value='+value+']")');
 }
 
 CasperRenderer.prototype.checkSelectOptions = function(item) {
@@ -425,11 +425,18 @@ CasperRenderer.prototype.checkSelectOptions = function(item) {
 
 CasperRenderer.prototype.checkImageSrc = function(item) {
 	var src = this.pyrepr(this.shortUrl(item.info.src));
-	this.stmt('casper.then(function() {');
-	this.stmt('    this.test.assertExists(x("//img[@src=' + src + ']"));');
-	this.stmt('});');
+	this.waitAndTestSelector('x("//img[@src=' + src + ']")');
 }
 
+CasperRenderer.prototype.waitAndTestSelector = function(selector) {
+	this.stmt('casper.waitForSelector(' + selector + ',');
+	this.stmt('    function success() {');
+	this.stmt('        this.test.assertExists(' + selector + ');')
+	this.stmt('      },');
+	this.stmt('    function fail() {');
+	this.stmt('        this.test.assertExists(' + selector + ');')
+	this.stmt('});');
+}
 var dt = new CasperRenderer(document);
 function onpageload() {
     chrome.extension.sendRequest({action: "get_items"}, function(response) {
