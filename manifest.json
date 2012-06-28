@@ -13,6 +13,7 @@
   "background_page": "background.html",
   "permissions": [
      "tabs",
+     "background",
      "http://*/*"
   ],
   "content_scripts": [{
