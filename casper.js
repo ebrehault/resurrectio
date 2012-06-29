@@ -443,9 +443,9 @@ CasperRenderer.prototype.waitAndTestSelector = function(selector) {
 	this.stmt('});');
 }
 var dt = new CasperRenderer(document);
-function onpageload() {
+window.onload = function onpageload() {
     chrome.extension.sendRequest({action: "get_items"}, function(response) {
         dt.items = response.items;
         dt.render();
     });
-}
+};

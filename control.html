@@ -11,36 +11,25 @@
 <form name="control">
 <div><strong>URL:</strong>
   <input type="text" size="80" name="url" /> 
-  <input type="submit" id="bgo" name="submit" value=" Go "
-   onclick="ui.start(); return false;"> 
-  <input type="submit" id="bstop" name="bstop" value="Stop Recording"
-   style="display:none;"
-   onclick="ui.stop(); return false;"> 
-  <input type="submit" id="bcomment" name="bcomment" value="Add Comment"
-   style="display: none;"
-   onclick="ui.showcomment(); return false;">
-  <input type="submit" id="bexport" name="bexport" value="Export CasperJS"
-   style="display: none;"
-   onclick="ui.export(); return false;"> 
-  <input type="submit" id="bdoc" name="bdoc" value="Export doc"
-   style="display: none;"
-   onclick="ui.exportdoc(); return false;"> 
+  <input type="submit" id="bgo" name="submit" value=" Go " /> 
+  <input type="submit" id="bstop" name="bstop" value="Stop Recording" style="display:none;" /> 
+  <input type="submit" id="bcomment" name="bcomment" value="Add Comment" style="display: none;" />
+  <input type="submit" id="bexport" name="bexport" value="Export CasperJS" style="display: none;" /> 
+  <input type="submit" id="bdoc" name="bdoc" value="Export doc" style="display: none;" /> 
 </div> 
 <div id="comment" style="display:none">
   <strong>Comment:</strong> 
   <textarea id="ctext" id="ctext" name="ctext"
    rows="8" cols="80"></textarea> 
   <br />
-  <input type="submit" name="c1" value=" Save " 
-   onclick="ui.hidecomment(true); return false;"> 
-  <input type="submit" name="c2" value=" Cancel " 
-   onclick="ui.hidecomment(false); return false;">
+  <input type="submit" id="bsavecomment" name="c1" value=" Save " /> 
+  <input type="submit" id="bcancelcomment" name="c2" value=" Cancel " />
 </div>
 </form>
 <div id="logo"></div>
 <p class="tagline">
     <a href="https://github.com/ebrehault/resurrectio" target="_new">Resurrectio</a> - 
-    <span onclick="this.innerText='Omne phantasma resurrectionem suam promit.'">Every phantom deserves a resurrection.</span>
+    <span id="tagline">Every phantom deserves a resurrection.</span>
     <a href="http://www.makina-corpus.com" target="_new" title="Makina Corpus"><img alt="Makina Corpus" src="./makina-corpus.png" /></a></p>
 </body>
 </html>

@@ -132,4 +132,18 @@ RecorderUI.prototype.export = function(bexport) {
 RecorderUI.prototype.exportdoc = function(bexport) {
     chrome.tabs.create({url: "./doc.html"});
 }
-var ui = new RecorderUI();
+
+var ui;
+
+// bind events to ui elements
+window.onload = function(){
+    document.querySelector('input#bgo').onclick=function() {ui.start(); return false;};
+    document.querySelector('input#bstop').onclick=function() {ui.stop(); return false;};
+    document.querySelector('input#bcomment').onclick=function() {ui.showcomment(); return false;};
+    document.querySelector('input#bexport').onclick=function() {ui.export(); return false;};
+    document.querySelector('input#bdoc').onclick=function() {ui.exportdoc(); return false;};
+    document.querySelector('input#bsavecomment').onclick=function() {ui.hidecomment(true); return false;};
+    document.querySelector('input#bcancelcomment').onclick=function() {ui.hidecomment(false); return false;};
+    document.querySelector('#tagline').onclick=function() {this.innerText='Omne phantasma resurrectionem suam promit.'};
+    ui = new RecorderUI();
+}
