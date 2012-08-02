@@ -240,7 +240,7 @@ CasperRenderer.prototype.getControlXPath = function(item) {
 CasperRenderer.prototype.getLinkXPath = function(item) {
   var way;
   if (item.text)
-    way = 'text()=' + this.pyrepr(this.normalizeWhitespace(item.text));
+    way = 'normalize-space(text())=' + this.pyrepr(this.normalizeWhitespace(item.text));
   else if (item.info.id)
     way = '@id=' + this.pyrepr(item.info.id);
   else if (item.info.href)
@@ -393,7 +393,7 @@ CasperRenderer.prototype.checkText = function(item) {
   if ((item.info.type == "submit") || (item.info.type == "button")) {
       selector = 'x("//input[@value='+this.pyrepr(item.text)+']")';
   } else {
-      selector = 'x("//*[text()='+this.pyrepr(item.text)+']")';
+      selector = 'x("//*[normalize-space(text())='+this.pyrepr(item.text)+']")';
   }
   this.waitAndTestSelector(selector);
 }
