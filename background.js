@@ -10,6 +10,10 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
     empty = false;
     sendResponse({});
   }
+  if (request.action == "poke") {
+    testcase_items[testcase_items.length - 1] = request.obj;
+    sendResponse({});
+  }
   if (request.action == "get_status") {
     sendResponse({'active': active, 'empty': empty});
   }

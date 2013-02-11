@@ -253,6 +253,10 @@ TestRecorder.TestCase.prototype.peek = function() {
     return this.items[this.items.length - 1];
 }
 
+TestRecorder.TestCase.prototype.poke = function(o) {
+    this.items[this.items.length - 1] = o;
+    chrome.extension.sendRequest({action: "poke", obj: o});
+}
 
 
 //---------------------------------------------------------------------------
@@ -290,6 +294,7 @@ TestRecorder.EventTypes.MouseDown = 19;
 TestRecorder.EventTypes.MouseUp = 20;
 TestRecorder.EventTypes.MouseDrag = 21;
 TestRecorder.EventTypes.MouseDrop = 22;
+TestRecorder.EventTypes.KeyPress = 23;
 
 TestRecorder.ElementInfo = function(element) {
     this.action = element.action;
@@ -372,6 +377,12 @@ TestRecorder.ElementEvent = function(type, target, text) {
 
 TestRecorder.CommentEvent = function(text) {
     this.type = TestRecorder.EventTypes.Comment;
+    this.text = text;
+}
+
+TestRecorder.KeyEvent = function(target, text) {
+    this.type = TestRecorder.EventTypes.KeyPress;
+    this.info = new TestRecorder.ElementInfo(target);
     this.text = text;
 }
 
@@ -868,7 +879,7 @@ TestRecorder.Recorder.prototype.onchange = function(e) {
     var et = TestRecorder.EventTypes;
     var v = new TestRecorder.ElementEvent(et.Change, e.target());
     recorder.testcase.append(v);
-    recorder.log("value changed: " + e.target());
+    recorder.log("value changed: " + e.target().value);
 }
 
 TestRecorder.Recorder.prototype.onselect = function(e) {
@@ -960,6 +971,15 @@ TestRecorder.Recorder.prototype.onkeypress = function(e) {
     var e = new TestRecorder.Event(e);
     if (e.shiftkey() && (e.keychar() == 'C')) {
         // TODO show comment box here
+    }
+    var last = recorder.testcase.peek();
+    if(last.type == TestRecorder.EventTypes.KeyPress) {
+        last.text = last.text + e.keychar();
+        recorder.testcase.poke(last);
+    } else {
+        recorder.testcase.append(
+            new TestRecorder.KeyEvent(e.target(), e.keychar())
+        );
     }
     return true;
 }
