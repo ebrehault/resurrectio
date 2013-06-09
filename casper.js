@@ -220,7 +220,7 @@ CasperRenderer.prototype.getControl = function(item) {
   else if (item.info.id)
   selector = tag+'#'+item.info.id;
   else
-  selector = 'TODO';
+  selector = item.info.selector;
 
   return selector;
 }
@@ -250,8 +250,6 @@ CasperRenderer.prototype.getLinkXPath = function(item) {
     way = '@href=' + this.pyrepr(this.shortUrl(item.info.href));
   else if (item.info.title)
     way = 'title='+this.pyrepr(this.normalizeWhitespace(item.info.title));
-  else 
-    way = 'TODO';
 
   return way;
 }
@@ -274,17 +272,17 @@ CasperRenderer.prototype.click = function(item) {
   } else {
     var selector;
     if (tag == 'a') {
-      selector = 'x("//a['+this.getLinkXPath(item)+']")';
+      var xpath_selector = this.getLinkXPath(item);
+      if(xpath_selector) {
+        selector = 'x("//a['+xpath_selector+']")';
+      } else {
+        selector = item.info.selector;
+      }
     } else if (tag == 'input' || tag == 'button') {
       selector = this.getFormSelector(item) + ' ' + this.getControl(item);
       selector = '"' + selector + '"';
     } else {
-      if (item.info.id) {
-        selector = '"#' + item.info.id + '"';
-      } else {
-        // TODO: make sure recorder provides a clean XPath selector
-        selector = "TODO";
-      }
+      selector = '"' + item.info.selector + '"';
     }
     this.stmt('casper.waitForSelector('+ selector + ',');
     this.stmt('    function success() {');
@@ -399,10 +397,15 @@ CasperRenderer.prototype.checkText = function(item) {
 }
 
 CasperRenderer.prototype.checkHref = function(item) {
-  var selector = this.getLinkXPath(item);
   var href = this.pyrepr(this.shortUrl(item.info.href));
+  var selector = this.getLinkXPath(item);
+  if(selector) {
+    selector = 'x("//a['+xpath_selector+' and @href='+ href +']")';
+  } else {
+    selector = item.info.selector+'[href='+ href +']';
+  }
     this.stmt('casper.then(function() {');
-    this.stmt('    this.test.assertExists(x("//a[' + way + ' and @href='+ href +']"));');
+    this.stmt('    this.test.assertExists('+selector+');');
     this.stmt('});');
 }
 

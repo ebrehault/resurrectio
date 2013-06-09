@@ -301,6 +301,7 @@ TestRecorder.ElementInfo = function(element) {
     this.method = element.method;
     this.href = element.href;
     this.tagName = element.tagName;
+    this.selector = this.getCleanCSSSelector(element);
     this.value = element.value;
     this.checked = element.checked;
     this.name = element.name;
@@ -361,6 +362,69 @@ TestRecorder.ElementInfo.prototype.findContainingLabel = function(element) {
         return parent;
     else
         return this.findContainingLabel(parent);
+}
+
+TestRecorder.ElementInfo.prototype.getCleanCSSSelector = function(element) {
+    var selector = element.tagName ? element.tagName.toLowerCase() : '';
+    if(selector == '' || selector == 'html') return '';
+
+    var tmp_selector = '';
+    var accuracy = document.querySelectorAll(selector).length;
+    if(element.id) {
+        selector = "#" + element.id;
+        accuracy = document.querySelectorAll(selector).length
+        if(accuracy==1) return selector;
+    }
+    if(element.className) {
+        tmp_selector = '.' + element.className.replace(' ', '.');
+        if(document.querySelectorAll(tmp_selector).length < accuracy) {
+            selector = tmp_selector;
+            accuracy = document.querySelectorAll(selector).length
+            if(accuracy==1) return selector;
+        }
+    }
+    var parent = element.parentNode;
+    var parent_selector = this.getCleanCSSSelector(parent);
+
+    if(parent_selector) {
+
+        // resolve sibling ambiguity
+        var matching_sibling = 0;
+        var matching_nodes = document.querySelectorAll(parent_selector + ' > ' + selector);
+        for(var i=0; i<matching_nodes.length;i++) {
+            if(matching_nodes[i].parentNode == parent) matching_sibling++;
+        }
+        if(matching_sibling > 1) {
+            var index = 1;
+            for (var sibling = element.previousElementSibling; sibling; sibling = sibling.previousElementSibling) index++;
+            selector = selector + ':nth-child(' + index + ')';
+        }
+        
+        // remove useless intermediary parent
+        selector_array = parent_selector.split(' ');
+        if(selector_array.length>1) {
+            for(var i=1;i<selector_array.length;i++) {
+                tmp_selector = selector_array.slice(0,i).join(' ') + ' ' + selector;
+                if(document.querySelectorAll(tmp_selector).length == 1) {
+                    selector = tmp_selector;
+                    break;
+                }
+            }
+        } 
+
+        // improve accuracy is still not correct
+        accuracy = document.querySelectorAll(selector).length
+        if(accuracy>1) {
+            tmp_selector = parent_selector + " " + selector;
+            if(document.querySelectorAll(tmp_selector).length==1) {
+                selector = tmp_selector;
+            } else {
+                selector = parent_selector + " > " + selector;
+            }
+        }
+    }
+
+    return selector;
 }
 
 TestRecorder.DocumentEvent = function(type, target) {
