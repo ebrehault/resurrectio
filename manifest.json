@@ -1,6 +1,6 @@
 {
   "name": "Resurrectio",
-  "version": "0.1",
+  "version": "0.2",
   "manifest_version": 2,
   "description": "Functional-oriented and javascript-friendly test recorder. Exports CasperJS scripts. Supports screenshots.",
   "icons": {"48": "makina-icon.png",
