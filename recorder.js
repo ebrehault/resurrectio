@@ -908,6 +908,7 @@ TestRecorder.Recorder.prototype.ondrag = function(e) {
             ));
 }
 TestRecorder.Recorder.prototype.onmousedown = function(e) {
+    console.log("DOWN");
     if(!contextmenu.visible) {
         var e = new TestRecorder.Event(e);
         if (e.button() == TestRecorder.Event.LeftButton) {
@@ -972,6 +973,13 @@ TestRecorder.Recorder.prototype.onkeypress = function(e) {
     if (e.shiftkey() && (e.keychar() == 'C')) {
         // TODO show comment box here
     }
+    if (e.shiftkey() && (e.keychar() == 'S')) {
+        recorder.testcase.append(new TestRecorder.ScreenShotEvent());
+        e.stopPropagation();
+        e.preventDefault();
+        return false;
+    }
+    
     var last = recorder.testcase.peek();
     if(last.type == TestRecorder.EventTypes.KeyPress) {
         last.text = last.text + e.keychar();

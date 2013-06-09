@@ -87,7 +87,7 @@ d[EventTypes.CheckSelectOptions] = "checkSelectOptions";
 d[EventTypes.CheckImageSrc] = "checkImageSrc";
 d[EventTypes.PageLoad] = "pageLoad";
 d[EventTypes.ScreenShot] = "screenShot";
-/* d[EventTypes.MouseDown] = "mousedown";
+/*d[EventTypes.MouseDown] = "mousedown";
 d[EventTypes.MouseUp] = "mouseup"; */
 d[EventTypes.MouseDrag] = "mousedrag";
 d[EventTypes.KeyPress] = "keypress";
@@ -101,6 +101,8 @@ CasperRenderer.prototype.render = function() {
   this.document.open();
   this.document.write("<" + "pre" + ">");
   this.writeHeader();
+  var last_down = null;
+  var forget_click = false;
 
   for (var i=0; i < this.items.length; i++) {
     var item = this.items[i];
@@ -115,39 +117,36 @@ CasperRenderer.prototype.render = function() {
           continue;
         }
     }
-    if(i>1) {
-        var before = this.items[i-1];
-        // we do not want click due to user checking actions
-        if(item.type==etypes.Click && 
-                ((before.type>=etypes.CheckPageTitle && before.type<=etypes.CheckImageSrc) || before.type==etypes.ScreenShot)) {
-            continue;
-        }
-      // check mousedown / mouseup / click sequences
-      var before_before = this.items[i-2];
-      if(before_before.type==etypes.MouseDown && before.type==etypes.MouseUp) {
-        if(item.type!=etypes.Click) {
-          // click has been swallowed (return false), we dispatch
-          if(before_before.x == before.x && before_before.y == before.y) {
-            // same location, so it is a click
-            this[this.dispatch[etypes.Click]](before);
-          } else {
-            // different location, so it is a drag
-            before.before = before_before;
-            this[this.dispatch[etypes.MouseDrag]](before);
-          }
-        } else {
-          if(!(item.x && item.y) || (item.x == before.x && item.y == before.y)) {
-                    // same location or element click: dispatch a click
-                    this[this.dispatch[etypes.Click]](item);
-                } else {
-                    // different location, so it is a drag
-                    item.before = before;
-                    this[this.dispatch[etypes.MouseDrag]](item);
-                }
-          continue;
-        }
+
+    // remember last MouseDown to identify drag
+    if(item.type==etypes.MouseDown) {
+      last_down = this.items[i];
+      continue;
+    }
+    if(item.type==etypes.MouseUp && last_down) {
+      if(last_down.x == item.x && last_down.y == item.y) {
+        console.log(i);
+        forget_click = false;
+        continue;
+      } else {
+        item.before = last_down;
+        this[this.dispatch[etypes.MouseDrag]](item);
+        last_down = null;
+        forget_click = true;
+        continue;
       }
     }
+    if(item.type==etypes.Click && forget_click) {
+      forget_click = false;
+      continue;
+    }
+
+    // we do not want click due to user checking actions
+    if(i>0 && item.type==etypes.Click && 
+            ((this.items[i-1].type>=etypes.CheckPageTitle && this.items[i-1].type<=etypes.CheckImageSrc) || this.items[i-1].type==etypes.ScreenShot)) {
+        continue;
+    }
+
     if (this.dispatch[item.type]) {
       this[this.dispatch[item.type]](item);
     }
@@ -303,9 +302,11 @@ CasperRenderer.prototype.getFormSelector = function(item) {
 }
 
 CasperRenderer.prototype.keypress = function(item) {
+  var text = item.text.replace('\n','').replace('\r', '\\r');
+
   this.stmt('casper.waitForSelector("' + this.getControl(item) + '",');
   this.stmt('    function success() {');
-  this.stmt('        this.sendKeys("' + this.getControl(item) + '", "' + item.text + '");');
+  this.stmt('        this.sendKeys("' + this.getControl(item) + '", "' + text + '");');
   this.stmt('    },');
   this.stmt('    function fail() {');
   this.stmt('        this.test.assertExists("' + this.getControl(item) + '");')
