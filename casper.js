@@ -96,7 +96,8 @@ CasperRenderer.prototype.dispatch = d;
 
 var cc = EventTypes;
 
-CasperRenderer.prototype.render = function() {
+CasperRenderer.prototype.render = function(with_xy) {
+  this.with_xy = with_xy;
   var etypes = EventTypes;
   this.document.open();
   this.document.write("<" + "pre" + ">");
@@ -256,15 +257,17 @@ CasperRenderer.prototype.getLinkXPath = function(item) {
 }
 
 CasperRenderer.prototype.mousedrag = function(item) {
+  if(this.with_xy) {
     this.stmt('casper.then(function() {');
     this.stmt('    this.mouse.down('+ item.before.x + ', '+ item.before.y +');');
     this.stmt('    this.mouse.move('+ item.x + ', '+ item.y +');');
     this.stmt('    this.mouse.up('+ item.x + ', '+ item.y +');');
     this.stmt('});');
+  }
 }
 CasperRenderer.prototype.click = function(item) {
   var tag = item.info.tagName.toLowerCase();
-  if(!(tag == 'a' || tag == 'input' || tag == 'button')) {
+  if(this.with_xy && !(tag == 'a' || tag == 'input' || tag == 'button')) {
     this.stmt('casper.then(function() {');
     this.stmt('    this.mouse.click('+ item.x + ', '+ item.y +');');
     this.stmt('});');
@@ -275,6 +278,13 @@ CasperRenderer.prototype.click = function(item) {
     } else if (tag == 'input' || tag == 'button') {
       selector = this.getFormSelector(item) + ' ' + this.getControl(item);
       selector = '"' + selector + '"';
+    } else {
+      if (item.info.id) {
+        selector = '"#' + item.info.id + '"';
+      } else {
+        // TODO: make sure recorder provides a clean XPath selector
+        selector = "TODO";
+      }
     }
     this.stmt('casper.waitForSelector('+ selector + ',');
     this.stmt('    function success() {');
@@ -434,8 +444,12 @@ CasperRenderer.prototype.waitAndTestSelector = function(selector) {
 }
 var dt = new CasperRenderer(document);
 window.onload = function onpageload() {
-    chrome.extension.sendRequest({action: "get_items"}, function(response) {
-        dt.items = response.items;
-        dt.render();
-    });
+  var with_xy = false;
+  if(window.location.search=="?xy=true") {
+    with_xy = true;
+  }
+  chrome.extension.sendRequest({action: "get_items"}, function(response) {
+      dt.items = response.items;
+      dt.render(with_xy);
+  });
 };
