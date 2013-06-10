@@ -32,7 +32,13 @@ Install `CasperJS <http://casperjs.org/installation.html>`_.
 Resurrection installation
 -------------------------
 
-Get Github sources::
+From Chrome store:
+
+Go to `Chrome store Resurrectio page <https://chrome.google.com/webstore/detail/resurrectio/kicncbplfjgjlliddogifpohdhkbjogm>`_ and click on the Add button.
+
+OR
+
+From Github sources::
 
     git clone git://github.com/ebrehault/resurrectio.git
 
