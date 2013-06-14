@@ -49,7 +49,7 @@ Then, in Chrome:
     - go to **Tools / Extensions**,
     - expand **Developer mode**,
     - click **Load unpacked extension**,
-    - select the .resurrection folder.
+    - select the ./resurrection folder.
 
 Usage
 =====
