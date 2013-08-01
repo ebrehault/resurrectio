@@ -376,7 +376,7 @@ TestRecorder.ElementInfo.prototype.getCleanCSSSelector = function(element) {
         if(accuracy==1) return selector;
     }
     if(element.className) {
-        tmp_selector = '.' + element.className.replace(' ', '.');
+        tmp_selector = '.' + element.className.trim().replace(/ /g,".");
         if(document.querySelectorAll(tmp_selector).length < accuracy) {
             selector = tmp_selector;
             accuracy = document.querySelectorAll(selector).length
