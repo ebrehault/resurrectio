@@ -106,3 +106,9 @@ Companies
 
 .. |makinacom| image:: http://depot.makina-corpus.org/public/logo.gif
 .. _makinacom:  http://www.makina-corpus.com
+
+
+.. image:: https://d2weczhvl823v0.cloudfront.net/ebrehault/resurrectio/trend.png
+   :alt: Bitdeli badge
+   :target: https://bitdeli.com/free
+
