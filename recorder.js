@@ -365,6 +365,7 @@ TestRecorder.ElementInfo.prototype.findContainingLabel = function(element) {
 }
 
 TestRecorder.ElementInfo.prototype.getCleanCSSSelector = function(element) {
+    if(!element) return;
     var selector = element.tagName ? element.tagName.toLowerCase() : '';
     if(selector == '' || selector == 'html') return '';
 
@@ -412,7 +413,7 @@ TestRecorder.ElementInfo.prototype.getCleanCSSSelector = function(element) {
             }
         } 
 
-        // improve accuracy is still not correct
+        // improve accuracy if still not correct
         accuracy = document.querySelectorAll(selector).length
         if(accuracy>1) {
             tmp_selector = parent_selector + " " + selector;
@@ -972,7 +973,6 @@ TestRecorder.Recorder.prototype.ondrag = function(e) {
             ));
 }
 TestRecorder.Recorder.prototype.onmousedown = function(e) {
-    console.log("DOWN");
     if(!contextmenu.visible) {
         var e = new TestRecorder.Event(e);
         if (e.button() == TestRecorder.Event.LeftButton) {
