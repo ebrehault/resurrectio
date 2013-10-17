@@ -281,7 +281,7 @@ CasperRenderer.prototype.click = function(item) {
         selector = item.info.selector;
       }
     } else if (tag == 'input' || tag == 'button') {
-      selector = this.getFormSelector(item) + ' ' + this.getControl(item);
+      selector = this.getFormSelector(item) + this.getControl(item);
       selector = '"' + selector + '"';
     } else {
       selector = '"' + item.info.selector + '"';
@@ -300,14 +300,14 @@ CasperRenderer.prototype.click = function(item) {
 CasperRenderer.prototype.getFormSelector = function(item) {
   var info = item.info;
   if(!info.form) {
-    return 'form';
+    return '';
   }
   if(info.form.name) {
-        return "form[name=" + info.form.name + "]";
+        return "form[name=" + info.form.name + "] ";
     } else if(info.form.id) {
-    return "form#" + info.form.id;
+    return "form#" + info.form.id + " ";
   } else {
-    return "form";
+    return "form ";
   }
 }
 
