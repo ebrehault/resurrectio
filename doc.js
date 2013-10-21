@@ -112,7 +112,7 @@ DocumentRenderer.prototype.comment = function(item) {
 
 var dt = new DocumentRenderer(document);
 window.onload = function onpageload() {
-    chrome.extension.sendRequest({action: "get_items"}, function(response) {
+    chrome.runtime.sendMessage({action: "get_items"}, function(response) {
         dt.items = response.items;
         dt.render();
     });

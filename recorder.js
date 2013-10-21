@@ -246,7 +246,7 @@ TestRecorder.TestCase = function() {
 
 TestRecorder.TestCase.prototype.append = function(o) {
     this.items[this.items.length] = o;
-    chrome.extension.sendRequest({action: "append", obj: o});
+    chrome.runtime.sendMessage({action: "append", obj: o});
 }
 
 TestRecorder.TestCase.prototype.peek = function() {
@@ -255,7 +255,7 @@ TestRecorder.TestCase.prototype.peek = function() {
 
 TestRecorder.TestCase.prototype.poke = function(o) {
     this.items[this.items.length - 1] = o;
-    chrome.extension.sendRequest({action: "poke", obj: o});
+    chrome.runtime.sendMessage({action: "poke", obj: o});
 }
 
 
@@ -1066,7 +1066,7 @@ TestRecorder.Recorder.prototype.log = function(text) {
     }
 }
 
-chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action == "start") {
         recorder.start();
         sendResponse({});
@@ -1086,7 +1086,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 });
 
 //get current status from background
-chrome.extension.sendRequest({action: "get_status"}, function(response) {
+chrome.runtime.sendMessage({action: "get_status"}, function(response) {
     if (response.active) {
         recorder.start();
     }

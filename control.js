@@ -7,23 +7,23 @@ function RecorderProxy() {
 
 RecorderProxy.prototype.start = function(url) {
 	chrome.tabs.getSelected(null, function(tab) {
-	    chrome.extension.sendRequest({action: "start", recorded_tab: tab.id, start_url: url});
+	    chrome.runtime.sendMessage({action: "start", recorded_tab: tab.id, start_url: url});
 	});
 }
 
 RecorderProxy.prototype.stop = function() {
-    chrome.extension.sendRequest({action: "stop"});
+    chrome.runtime.sendMessage({action: "stop"});
 }
 
 RecorderProxy.prototype.open = function(url, callback) {
     chrome.tabs.getSelected(null, function(tab) {
-        chrome.tabs.sendRequest(tab.id, {action: "open", 'url': url}, callback);
+        chrome.tabs.sendMessage(tab.id, {action: "open", 'url': url}, callback);
     });
 }
 
 RecorderProxy.prototype.addComment = function(text, callback) {
     chrome.tabs.getSelected(null, function(tab) {
-        chrome.tabs.sendRequest(tab.id, {action: "addComment", 'text': text}, callback);
+        chrome.tabs.sendMessage(tab.id, {action: "addComment", 'text': text}, callback);
     });
 }
 
@@ -32,7 +32,7 @@ RecorderProxy.prototype.addComment = function(text, callback) {
 //----------------------------------------------
 function RecorderUI() {
 	this.recorder = new RecorderProxy();
-	chrome.extension.sendRequest({action: "get_status"}, function(response) {
+	chrome.runtime.sendMessage({action: "get_status"}, function(response) {
 	    if (response.active) {
 	    	ui.set_started();
 	    } else {

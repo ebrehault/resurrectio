@@ -3,7 +3,7 @@ var active = false;
 var empty = true;
 var tab_id = null;
 console.log('init');
-chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   console.log(request);
   if (request.action == "append") {
     testcase_items[testcase_items.length] = request.obj;
@@ -24,14 +24,14 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	    testcase_items = new Array();
 	    tab_id = request.recorded_tab;
 	    chrome.tabs.update(tab_id, {url: request.start_url}, function() {
-	        chrome.tabs.sendRequest(tab_id, {action: "open", 'url': request.start_url});
+	        chrome.tabs.sendMessage(tab_id, {action: "open", 'url': request.start_url});
 	    });
 	    sendResponse({start: true});
 	}
   }
   if (request.action == "stop") {
     active = false;
-    chrome.tabs.sendRequest(tab_id, {action: "stop"});
+    chrome.tabs.sendMessage(tab_id, {action: "stop"});
     sendResponse({});
   }
   if (request.action == "get_items") {

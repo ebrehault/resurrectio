@@ -453,7 +453,7 @@ window.onload = function onpageload() {
   if(window.location.search=="?xy=true") {
     with_xy = true;
   }
-  chrome.extension.sendRequest({action: "get_items"}, function(response) {
+  chrome.runtime.sendMessage({action: "get_items"}, function(response) {
       dt.items = response.items;
       dt.render(with_xy);
   });
