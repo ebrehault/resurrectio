@@ -61,9 +61,11 @@ CasperRenderer.prototype.pyout = function(text) {
   this.document.writeln("    " + text);
 }
 
-CasperRenderer.prototype.pyrepr = function(text) {
+CasperRenderer.prototype.pyrepr = function(text, escape) {
   // todo: handle non--strings & quoting
-  return "'" + text + "'";
+  var s =  "'" + text + "'";
+  if(escape) s = s.replace(/(['"])/g, "\\$1");
+  return s;
 }
 
 CasperRenderer.prototype.space = function() {
@@ -350,7 +352,7 @@ CasperRenderer.prototype.comment = function(item) {
 }
 
 CasperRenderer.prototype.checkPageTitle = function(item) {
-  var title = this.pyrepr(item.title);
+  var title = this.pyrepr(item.title, true);
   this.stmt('casper.then(function() {');
   this.stmt('    test.assertTitle('+ title +');');
   this.stmt('});');
@@ -364,7 +366,7 @@ CasperRenderer.prototype.checkPageLocation = function(item) {
 }
 
 CasperRenderer.prototype.checkTextPresent = function(item) {
-    var selector = 'x("//*[contains(text(), '+this.pyrepr(item.text)+')]")';
+    var selector = 'x("//*[contains(text(), '+this.pyrepr(item.text, true)+')]")';
     this.waitAndTestSelector(selector);
 }
 
@@ -391,9 +393,9 @@ CasperRenderer.prototype.checkValue = function(item) {
 CasperRenderer.prototype.checkText = function(item) {
   var selector = '';
   if ((item.info.type == "submit") || (item.info.type == "button")) {
-      selector = 'x("//input[@value='+this.pyrepr(item.text)+']")';
+      selector = 'x("//input[@value='+this.pyrepr(item.text, true)+']")';
   } else {
-      selector = 'x("//*[normalize-space(text())='+this.pyrepr(item.text)+']")';
+      selector = 'x("//*[normalize-space(text())='+this.pyrepr(item.text, true)+']")';
   }
   this.waitAndTestSelector(selector);
 }
