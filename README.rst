@@ -25,9 +25,9 @@ CasperJS / PhantomJS
 --------------------
 
 Install `PhantomJS <http://code.google.com/p/phantomjs/wiki/Installation>`_,
-be careful CasperJS requires PhantomJS >= 1.5.
+be careful CasperJS requires PhantomJS >= 1.8.2.
 
-Install `CasperJS <http://casperjs.org/installation.html>`_.
+Install `CasperJS <http://casperjs.org/installation.html>`_ version 1.1.
 
 Resurrection installation
 -------------------------
