@@ -79,7 +79,7 @@ RecorderUI.prototype.set_started = function() {
 }
 
 RecorderUI.prototype.stop = function() {
-    ui.set_stopped();
+  ui.set_stopped();
 	ui.recorder.stop();
 	return false;
 }
@@ -88,7 +88,7 @@ RecorderUI.prototype.set_stopped = function() {
 	var e = document.getElementById("bstop");
 	e.style.display = 'none';
 	e = document.getElementById("bgo");
-    e.style.display = '';
+  e.style.display = '';
 	e = document.getElementById("bcomment");
 	e.style.display = 'none';
 	e = document.getElementById("bexport");
@@ -97,11 +97,6 @@ RecorderUI.prototype.set_stopped = function() {
   e.style.display = '';
   e = document.getElementById("bdoc");
   e.style.display = '';
-}
-RecorderUI.prototype.goto = function(targeturl) {
-	chrome.tabs.getSelected(null, function(tab) {
-	    chrome.tabs.update(tab.id, {url: targeturl});
-	});
 }
 
 RecorderUI.prototype.showcomment = function() {
