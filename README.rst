@@ -8,10 +8,10 @@ actions and to produce the corresponding `CasperJS  <http://casperjs.org/>`_
 script.
 
 Resurrectio uses minimalist and functional-oriented selectors, so recorded
-sequences keep valid across layout and design changes.
+sequences stay valid across layout and design changes.
 
-As **CasperJS evaluates Javascript**, recorded sequences are not be limited
-to pure HTML interactions, targeted pages javascript-supported behaviors will
+As **CasperJS evaluates JavaScript**, recorded sequences are not limited
+to pure HTML interactions, targeted pages JavaScript-supported behaviors will
 be accurately reproduced.
 
 Resurrectio also provides a way to produce **screenshots** alongside your test
@@ -29,7 +29,7 @@ be careful CasperJS requires PhantomJS >= 1.8.2.
 
 Install `CasperJS <http://casperjs.org/installation.html>`_ version 1.1.
 
-Resurrection installation
+Resurrectio installation
 -------------------------
 
 From Chrome store:
@@ -42,19 +42,19 @@ From Github sources::
 
     git clone git://github.com/ebrehault/resurrectio.git
 
-It will produce a ./resurrection folder.
+It will produce a ./resurrectio folder.
 
 Then, in Chrome:
 
     - go to **Tools / Extensions**,
     - expand **Developer mode**,
     - click **Load unpacked extension**,
-    - select the ./resurrection folder.
+    - select the ./resurrectio folder.
 
 Usage
 =====
 
-Click on the Resurrection extension icon.
+Click on the Resurrectio extension icon.
 
 Enter the start URL, and click Go.
 
@@ -63,7 +63,7 @@ Then execute your usage scenario, all the events will be recorded.
 By right-clicking on the page, you might also record some assertion (about the
 current url, about existing text, etc.).
 
-You can require a **screenshot** at any moment (they will be produced everytime
+You can request a **screenshot** at any moment (they will be produced everytime
 you run the resulting test).
 
 You might also record some comments (click again on the extension icon, and
@@ -78,12 +78,12 @@ Copy/paste the resulting code into a local file, and run the test::
 
     casperjs test my_scenario.js
 
-It will play your entire scenario and produce the screenshots.
+It will play your entire scenario and generate the screenshots.
 
 Future features
 ===============
 
-Implement more mouse events, like drag&drop and mousewheel.
+Implement more mouse events, like drag & drop and mousewheel.
 
 Credits
 =======
@@ -93,14 +93,13 @@ Author
 
 * Eric BREHAULT <eric.brehault@makina-corpus.org>
 
-* Resurrectio event recorder is based on the zope.recorder tool, created by
-Brian Lloyd <brian@zope.com>
+* Resurrectio event recorder is based on the zope.recorder tool, created by Brian Lloyd <brian@zope.com>
 
 Companies
 ---------
 |makinacom|_
 
-* `Planet Makina Corpus <http://www.makina-corpus.org>`_
+* `Makina Corpus blog <http://makina-corpus.com/blog/metier/>`_
 * `Contact us <mailto:python@makina-corpus.org>`_
 
 
