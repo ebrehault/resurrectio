@@ -186,6 +186,13 @@ CasperRenderer.prototype.shortUrl = function(url) {
 CasperRenderer.prototype.startUrl = function(item) {
   var url = this.pyrepr(this.rewriteUrl(item.url));
   this.stmt("casper.options.viewportSize = {width: "+item.width+", height: "+item.height+"};", 0);
+  this.stmt("casper.on('page.error', function(msg, trace) {", 0);
+  this.stmt("this.echo('Error: ' + msg, 'ERROR');", 1);
+  this.stmt("for(var i=0; i&lt;trace.length; i++) {", 1);
+  this.stmt("var step = trace[i];", 2);
+  this.stmt("this.echo('   ' + step.file + ' (line ' + step.line + ')', 'ERROR');", 2);
+  this.stmt("}", 1);
+  this.stmt("});", 0);
   this.stmt("casper.test.begin('Resurrectio test', function(test) {", 0);
   this.stmt("casper.start(" + url + ");");        
 }
