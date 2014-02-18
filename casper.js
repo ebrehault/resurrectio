@@ -72,6 +72,10 @@ CasperRenderer.prototype.space = function() {
   this.document.write("\n");
 }
 
+CasperRenderer.prototype.regexp_escape = function(text) {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s\/]/g, "\\$&");
+};
+
 var d = {};
 d[EventTypes.OpenUrl] = "openUrl";
 d[EventTypes.Click] = "click";
@@ -366,7 +370,7 @@ CasperRenderer.prototype.checkPageTitle = function(item) {
 }
 
 CasperRenderer.prototype.checkPageLocation = function(item) {
-  var url = item.url.replace(new RegExp('/', 'g'), '\\/');
+  var url = this.regexp_escape(item.url);
   this.stmt('casper.then(function() {');
   this.stmt('    test.assertUrlMatch(/^'+ url +'$/);');
   this.stmt('});');
