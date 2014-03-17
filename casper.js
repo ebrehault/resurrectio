@@ -76,6 +76,23 @@ CasperRenderer.prototype.regexp_escape = function(text) {
   return text.replace(/[-[\]{}()*+?.,\\^$|#\s\/]/g, "\\$&");
 };
 
+CasperRenderer.prototype.cleanStringForXpath = function(str, escape)  {
+    var parts  = str.match(/[^'"]+|['"]/g);
+    parts = parts.map(function(part){
+        if (part === "'")  {
+            return '"\'"'; // output "'"
+        }
+
+        if (part === '"') {
+            return "'\"'"; // output '"'
+        }
+        return "'" + part + "'";
+    });
+    var xpath = "concat(" + parts.join(",") + ")";
+    if(escape) xpath = xpath.replace(/(["])/g, "\\$1");
+    return xpath;
+}
+
 var d = {};
 d[EventTypes.OpenUrl] = "openUrl";
 d[EventTypes.Click] = "click";
@@ -258,7 +275,7 @@ CasperRenderer.prototype.getControlXPath = function(item) {
 CasperRenderer.prototype.getLinkXPath = function(item) {
   var way;
   if (item.text)
-    way = 'normalize-space(text())=' + this.pyrepr(this.normalizeWhitespace(item.text));
+    way = 'normalize-space(text())=' + this.cleanStringForXpath(this.normalizeWhitespace(item.text), true);
   else if (item.info.id)
     way = '@id=' + this.pyrepr(item.info.id);
   else if (item.info.href)
@@ -406,7 +423,7 @@ CasperRenderer.prototype.checkText = function(item) {
   if ((item.info.type == "submit") || (item.info.type == "button")) {
       selector = 'x("//input[@value='+this.pyrepr(item.text, true)+']")';
   } else {
-      selector = 'x("//*[normalize-space(text())='+this.pyrepr(item.text, true)+']")';
+      selector = 'x("//*[normalize-space(text())='+this.cleanStringForXpath(item.text, true)+']")';
   }
   this.waitAndTestSelector(selector);
 }
