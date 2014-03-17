@@ -816,6 +816,20 @@ recorder.logfunc = function(msg) {console.log(msg);};
 TestRecorder.Recorder.prototype.start = function() {
     this.window = window;
     this.captureEvents();
+
+    // OVERRIDE stopPropagation
+    var actualCode = '(' + function() {
+        var overloadStopPropagation = Event.prototype.stopPropagation;
+        Event.prototype.stopPropagation = function(){
+            console.log(this);
+            overloadStopPropagation.apply(this, arguments);
+        };
+    } + ')();';
+    var script = document.createElement('script');
+    script.textContent = actualCode;
+    (document.head||document.documentElement).appendChild(script);
+    script.parentNode.removeChild(script);
+    
     this.active = true;
     this.log("recorder started");
 }
