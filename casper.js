@@ -88,7 +88,12 @@ CasperRenderer.prototype.cleanStringForXpath = function(str, escape)  {
         }
         return "'" + part + "'";
     });
-    var xpath = "concat(" + parts.join(",") + ")";
+    var xpath = '';
+    if(parts.length>1) {
+      xpath = "concat(" + parts.join(",") + ")";
+    } else {
+      xpath = parts[0];
+    }
     if(escape) xpath = xpath.replace(/(["])/g, "\\$1");
     return xpath;
 }
