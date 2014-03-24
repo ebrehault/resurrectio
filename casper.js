@@ -430,8 +430,8 @@ CasperRenderer.prototype.checkText = function(item) {
 
 CasperRenderer.prototype.checkHref = function(item) {
   var href = this.pyrepr(this.shortUrl(item.info.href));
-  var selector = this.getLinkXPath(item);
-  if(selector) {
+  var xpath_selector = this.getLinkXPath(item);
+  if(xpath_selector) {
     selector = 'x("//a['+xpath_selector+' and @href='+ href +']")';
   } else {
     selector = item.info.selector+'[href='+ href +']';
