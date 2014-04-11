@@ -22,5 +22,6 @@
         "matches": ["http://*/*", "https://*/*"],
         "js": ["recorder.js"]
   }],
-  "offline_enabled": true
+  "offline_enabled": true,
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }

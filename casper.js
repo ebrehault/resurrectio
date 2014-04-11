@@ -130,6 +130,7 @@ CasperRenderer.prototype.render = function(with_xy) {
   this.with_xy = with_xy;
   var etypes = EventTypes;
   this.document.open();
+  this.document.writeln('<button id="casperbox-button">Run it on Casperbox</button>');
   this.document.write("<" + "pre" + ">");
   this.writeHeader();
   var last_down = null;
@@ -482,6 +483,21 @@ CasperRenderer.prototype.waitAndTestSelector = function(selector) {
   this.stmt('        test.assertExists(' + selector + ');')
   this.stmt('});');
 }
+CasperRenderer.prototype.postToCasperbox = function() {
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'http://casperbox.com/api/scripts', true); 
+  xhr.onload = function() {
+    if (this.status == 202) {
+      response = JSON.parse(this.responseText);
+      window.open('http://casperbox.com/api/scripts/' + response.id);  
+    } else {
+      alert("Error "+this.status);
+    }
+    
+  };
+  xhr.send(document.getElementsByTagName('pre')[0].innerText);
+}
+
 var dt = new CasperRenderer(document);
 window.onload = function onpageload() {
   var with_xy = false;
@@ -491,5 +507,8 @@ window.onload = function onpageload() {
   chrome.runtime.sendMessage({action: "get_items"}, function(response) {
       dt.items = response.items;
       dt.render(with_xy);
+      document.getElementById("casperbox-button").onclick = function() {
+        dt.postToCasperbox();
+      };
   });
 };
