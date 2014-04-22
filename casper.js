@@ -191,9 +191,9 @@ CasperRenderer.prototype.render = function(with_xy) {
 
 CasperRenderer.prototype.writeHeader = function() {
   var date = new Date();
-  this.text("//==============================================================================", 0);
-  this.text("// Casper generated " + date, 0);
-  this.text("//==============================================================================", 0);
+  this.text("/*==============================================================================*/", 0);
+  this.text("/* Casper generated " + date + " */", 0);
+  this.text("/*==============================================================================*/", 0);
   this.space();
   this.stmt("var x = require('casper').selectXPath;", 0);
 }
@@ -362,7 +362,7 @@ CasperRenderer.prototype.keypress = function(item) {
 CasperRenderer.prototype.submit = function(item) {
   // the submit has been called somehow (user, or script)
   // so no need to trigger it.
-  this.stmt("// submit form");
+  this.stmt("/* submit form */");
 }
 
 CasperRenderer.prototype.screenShot = function(item) {
@@ -466,7 +466,7 @@ CasperRenderer.prototype.checkSelectValue = function(item) {
 }
 
 CasperRenderer.prototype.checkSelectOptions = function(item) {
-  this.stmt('// TODO');
+  this.stmt('/* TODO */');
 }
 
 CasperRenderer.prototype.checkImageSrc = function(item) {
