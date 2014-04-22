@@ -485,11 +485,11 @@ CasperRenderer.prototype.waitAndTestSelector = function(selector) {
 }
 CasperRenderer.prototype.postToCasperbox = function() {
   var xhr = new XMLHttpRequest();
-  xhr.open('POST', 'http://casperbox.com/api/scripts', true); 
+  xhr.open('POST', 'http://api.casperbox.com/scripts', true); 
   xhr.onload = function() {
     if (this.status == 202) {
       response = JSON.parse(this.responseText);
-      window.open('http://casperbox.com/api/scripts/' + response.id);  
+      window.open('http://api.casperbox.com/scripts/' + response.id);  
     } else {
       alert("Error "+this.status);
     }
