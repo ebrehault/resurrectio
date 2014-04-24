@@ -74,7 +74,8 @@ click **Stop recording**.
 
 Now, generate the CasperJS test script by clicking **Export Casper test**.
 
-Copy/paste the resulting code into a local file, and run the test::
+You might run the script directly on `CasperBox.com <http://casperbox.com/>`_,
+or you can copy/paste the resulting code into a local file, and run the test::
 
     casperjs test my_scenario.js
 
