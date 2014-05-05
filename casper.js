@@ -489,7 +489,7 @@ CasperRenderer.prototype.postToCasperbox = function() {
   xhr.onload = function() {
     if (this.status == 202) {
       response = JSON.parse(this.responseText);
-      window.open('http://api.casperbox.com/scripts/' + response.id);  
+      window.open('http://ide.casperbox.com/?' + response.id);  
     } else {
       alert("Error "+this.status);
     }
