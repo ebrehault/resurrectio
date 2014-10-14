@@ -372,7 +372,7 @@ TestRecorder.ElementInfo.prototype.getCleanCSSSelector = function(element) {
     var tmp_selector = '';
     var accuracy = document.querySelectorAll(selector).length;
     if(element.id) {
-        selector = "#" + element.id.replace(/\./g, '\\\\.');
+        selector = "#" + element.id.replace(/\./g, '\\.');
         accuracy = document.querySelectorAll(selector).length
         if(accuracy==1) return selector;
     }
