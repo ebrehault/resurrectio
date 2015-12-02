@@ -464,7 +464,7 @@ CasperRenderer.prototype.checkDisabled = function(item) {
 CasperRenderer.prototype.checkSelectValue = function(item) {
   var value = this.pyrepr(item.info.value);
   var way = this.getControlXPath(item);
-  this.waitAndTestSelector('x("//select[' + way + ']/options[@selected and @value='+value+']")');
+  this.waitAndTestSelector('x("//select[' + way + ']/option[@selected and @value='+value+']")');
 }
 
 CasperRenderer.prototype.checkSelectOptions = function(item) {
