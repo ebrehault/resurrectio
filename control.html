@@ -14,9 +14,15 @@
   <input type="submit" id="bgo" name="submit" value=" Go " /> 
   <input type="submit" id="bstop" name="bstop" value="Stop Recording" style="display:none;" /> 
   <input type="submit" id="bcomment" name="bcomment" value="Add Comment" style="display: none;" />
-  <input type="submit" id="bexport" name="bexport" value="Export CasperJS" style="display: none;" />
-  <input type="submit" id="bexportxy" name="bexportxy" value="Export CasperJS with (x,y) coords" style="display: none;" /> 
-  <input type="submit" id="bdoc" name="bdoc" value="Export doc" style="display: none;" /> 
+  <label id="export_type" style="display: none;">Export format
+    <select>
+      <option value="casper">CasperJS</option>
+      <option value="casperxy">CasperJS with (x,y) coords</option>
+      <option value="robot">RobotFramework</option>
+      <option value="doc">Doc</option>
+    </select>
+  </label>
+  <input type="submit" id="bexport" name="bexport" value="Export" style="display: none;" />
 </div> 
 <div id="comment" style="display:none">
   <strong>Comment:</strong> 

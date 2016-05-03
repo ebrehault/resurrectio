@@ -72,9 +72,7 @@ RecorderUI.prototype.set_started = function() {
   e.style.display = '';
   e = document.getElementById("bexport");
   e.style.display = 'none';
-  e = document.getElementById("bexportxy");
-  e.style.display = 'none';
-  e = document.getElementById("bdoc");
+  e = document.getElementById("export_type");
   e.style.display = 'none';
 }
 
@@ -93,10 +91,8 @@ RecorderUI.prototype.set_stopped = function() {
 	e.style.display = 'none';
 	e = document.getElementById("bexport");
 	e.style.display = '';
-  e = document.getElementById("bexportxy");
-  e.style.display = '';
-  e = document.getElementById("bdoc");
-  e.style.display = '';
+  e = document.getElementById("export_type");
+  e.style.display = '';;
 }
 
 RecorderUI.prototype.showcomment = function() {
@@ -125,11 +121,19 @@ RecorderUI.prototype.hidecomment = function(bsave) {
   return false;
 }
 
-RecorderUI.prototype.export = function(options) {
-  if(options && options.xy) {
-    chrome.tabs.create({url: "./casper.html?xy=true"});
-  } else {
+RecorderUI.prototype.export = function() {
+  format = document.querySelector('label#export_type select').value;
+  if(format=='casper') {
     chrome.tabs.create({url: "./casper.html"});
+  }
+  if(format=='casperxy') {
+    chrome.tabs.create({url: "./casper.html?xy=true"});
+  }
+  if(format=='robot') {
+    chrome.tabs.create({url: "./robot.html"});
+  }
+  if(format=='doc') {
+    chrome.tabs.create({url: "./doc.html"});
   }
 }
 RecorderUI.prototype.exportdoc = function(bexport) {
@@ -144,8 +148,6 @@ window.onload = function(){
     document.querySelector('input#bstop').onclick=function() {ui.stop(); return false;};
     document.querySelector('input#bcomment').onclick=function() {ui.showcomment(); return false;};
     document.querySelector('input#bexport').onclick=function() {ui.export(); return false;};
-    document.querySelector('input#bexportxy').onclick=function() {ui.export({xy: true}); return false;};
-    document.querySelector('input#bdoc').onclick=function() {ui.exportdoc(); return false;};
     document.querySelector('input#bsavecomment').onclick=function() {ui.hidecomment(true); return false;};
     document.querySelector('input#bcancelcomment').onclick=function() {ui.hidecomment(false); return false;};
     document.querySelector('#tagline').onclick=function() {this.innerText='Omne phantasma resurrectionem suam promit.'};
