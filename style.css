@@ -2,3 +2,16 @@ form[name="control"]{
 	width: 300px;
 	height: 200px;
 }
+.header.clearfix {
+	width: 100%;
+}
+
+.navbar-brand {
+	width: 100%;
+}
+
+.header.clearfix img#recording {
+	width: 18px;
+	height: 18px;
+	vertical-align: top;
+}

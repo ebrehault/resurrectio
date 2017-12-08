@@ -76,6 +76,8 @@ RecorderUI.prototype.set_started = function() {
   e.className += " hide";
   e = document.getElementById("bdoc");
   e.className += " hide";
+  e = document.getElementById("recording");
+  e.className = e.className.replace(/ hide|hide/ig, "");
 }
 
 RecorderUI.prototype.stop = function() {
@@ -97,6 +99,8 @@ RecorderUI.prototype.set_stopped = function() {
     e.className = e.className.replace(/ hide|hide/ig, "");
     e = document.getElementById("bdoc");
     e.className = e.className.replace(/ hide|hide/ig, "");
+    e = document.getElementById("recording");
+    e.className += " hide";
 }
 
 RecorderUI.prototype.showcomment = function() {
