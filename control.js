@@ -145,10 +145,10 @@ RecorderUI.prototype.setBtnGoState = function(){
         }
     });
     document.querySelector("input#turl").addEventListener("input", function(){
-        if(!/chrome\:/.test(tab.url)){
-        var bgoStyle = document.querySelector("input#bgo").className;
-            bgoStyle = bgoStyle.replace(/ hide|hide/ig, "");
-            document.querySelector("input#bgo").disabled = false;
+        var bgoStyle = document.querySelector("input#bgo");
+        if(!/chrome\:/.test(this.value)){
+                bgoStyle.className = bgoStyle.className.replace(/ disabled|disabled/ig, "");
+                bgoStyle.disabled = false;
         }
     });
 }
