@@ -63,13 +63,13 @@ RecorderUI.prototype.start = function() {
 
 RecorderUI.prototype.set_started = function() {
   var e = document.getElementById("bstop");
-  e.className = e.className.replace(/ hide/i, "");
+  e.className = e.className.replace(/ hide|hide/ig, "");
   e.onclick = ui.stop;
   e.value = "Stop Recording";
   e = document.getElementById("bgo");
   e.className += " hide";
   e = document.getElementById("bcomment");
-  e.className = e.className.replace(/ hide/i, "");
+  e.className = e.className.replace(/ hide|hide/ig, "");
   e = document.getElementById("bexport");
   e.className += " hide";
   e = document.getElementById("bexportxy");
@@ -88,22 +88,22 @@ RecorderUI.prototype.set_stopped = function() {
 	var e = document.getElementById("bstop");
 	e.className += " hide";
 	e = document.getElementById("bgo");
-    e.className = e.className.replace(/ hide/i, "");
+    e.className = e.className.replace(/ hide|hide/ig, "");
 	e = document.getElementById("bcomment");
 	e.className += " hide";
 	e = document.getElementById("bexport");
-	e.className = e.className.replace(/ hide/i, "");
+	e.className = e.className.replace(/ hide|hide/ig, "");
     e = document.getElementById("bexportxy");
-    e.className = e.className.replace(/ hide/i, "");
+    e.className = e.className.replace(/ hide|hide/ig, "");
     e = document.getElementById("bdoc");
-    e.className = e.className.replace(/ hide/i, "");
+    e.className = e.className.replace(/ hide|hide/ig, "");
 }
 
 RecorderUI.prototype.showcomment = function() {
   var e = document.getElementById("bcomment");
   e.className += " hide";
   e = document.getElementById("comment");
-  e.className = e.className.replace(/hide/i, "");
+  e.className = e.className.replace(/hide/ig, "");
   e = document.getElementById("ctext");
   e.focus();
   return false;
@@ -111,7 +111,7 @@ RecorderUI.prototype.showcomment = function() {
 
 RecorderUI.prototype.hidecomment = function(bsave) {
   var e = document.getElementById("bcomment");
-  e.className = e.className.replace(/ hide/i, "");
+  e.className = e.className.replace(/ hide|hide/ig, "");
   e = document.getElementById("comment");
   e.className += " hide";
   e = document.getElementById("ctext");
@@ -147,7 +147,7 @@ RecorderUI.prototype.setBtnGoState = function(){
     document.querySelector("input#turl").addEventListener("input", function(){
         if(!/chrome\:/.test(tab.url)){
         var bgoStyle = document.querySelector("input#bgo").className;
-            bgoStyle = bgoStyle.replace(/ hide/i, "");
+            bgoStyle = bgoStyle.replace(/ hide|hide/ig, "");
             document.querySelector("input#bgo").disabled = false;
         }
     });
