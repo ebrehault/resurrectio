@@ -155,14 +155,14 @@ RecorderUI.prototype.exportdoc = function(bexport) {
 
 RecorderUI.prototype.setBtnGoState = function(){
     chrome.tabs.getSelected(null, function (tab) {
-        if(/chrome\:/.test(tab.url)){
+        if(/(chrome|chrome\-extension)\:/.test(tab.url)){
             document.querySelector("input#bgo").className += " disabled";
             document.querySelector("input#bgo").disabled = true;
         }
     });
     document.querySelector("input#turl").addEventListener("input", function(){
         var bgoStyle = document.querySelector("input#bgo");
-        if(!/chrome\:/.test(this.value)){
+        if(!/(chrome|chrome\-extension)\:/.test(this.value)){
                 bgoStyle.className = bgoStyle.className.replace(/ disabled|disabled/ig, "");
                 bgoStyle.disabled = false;
         }
