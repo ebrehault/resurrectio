@@ -56,7 +56,7 @@ Usage
 
 Click on the Resurrectio extension icon.
 
-Enter the start URL, and click Go.
+Enter the start URL, and click Start Recording.
 
 Then execute your usage scenario, all the events will be recorded.
 

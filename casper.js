@@ -42,6 +42,21 @@ function CasperRenderer(document) {
   this.unamed_element_id = 1;
 }
 
+CasperRenderer.prototype.download = function(fileName, content){
+  var inst = document.createElement("a"),
+      blob = new Blob([js_beautify(content)], {"type" : "text/javascript"}),
+      evt = document.createEvent("HTMLEvents");
+      document.body.innerText = "";
+      evt.initEvent("click", false, false);
+      inst.download = fileName || "resurrectio.test.js";
+      inst.href = URL.createObjectURL(blob);
+      inst.dispatchEvent(evt);
+      inst.click();
+      setTimeout(function(){
+        window.close();
+      }, 300);
+}
+
 CasperRenderer.prototype.text = function(txt) {
   // todo: long lines
   this.document.writeln(txt);
@@ -128,13 +143,15 @@ CasperRenderer.prototype.dispatch = d;
 
 var cc = EventTypes;
 
-CasperRenderer.prototype.render = function(with_xy) {
+CasperRenderer.prototype.render = function(with_xy, download) {
   this.with_xy = with_xy;
   var etypes = EventTypes;
   this.document.open();
+  if(!download){
   this.document.writeln('<button id="casperbox-button">Run it on Casperbox</button>');
-  this.document.write("<" + "pre" + ">");
-  this.writeHeader();
+    this.document.write("<" + "pre" + ">");
+  }
+  this.writeHeader(download);
   var last_down = null;
   var forget_click = false;
 
@@ -186,17 +203,22 @@ CasperRenderer.prototype.render = function(with_xy) {
     if (item.type == etypes.Comment)
       this.space();
   }
-  this.writeFooter();
-  this.document.write("<" + "/" + "pre" + ">");
+    this.writeFooter();
+  if(!download){
+    this.document.write("<" + "/" + "pre" + ">");
+  }
+  download && download(document.body.innerText);
   this.document.close();
 }
 
-CasperRenderer.prototype.writeHeader = function() {
+CasperRenderer.prototype.writeHeader = function(download) {
   var date = new Date();
-  this.text("/*==============================================================================*/", 0);
-  this.text("/* Casper generated " + date + " */", 0);
-  this.text("/*==============================================================================*/", 0);
-  this.space();
+  if(!download){
+    this.text("/*==============================================================================*/", 0);
+    this.text("/* Casper generated " + date + " */", 0);
+    this.text("/*==============================================================================*/", 0);
+    this.space();
+  }
   this.stmt("var x = require('casper').selectXPath;", 0);
 }
 CasperRenderer.prototype.writeFooter = function() {
@@ -502,15 +524,23 @@ CasperRenderer.prototype.postToCasperbox = function() {
 
 var dt = new CasperRenderer(document);
 window.onload = function onpageload() {
-  var with_xy = false;
+  var with_xy = false,
+      download = window.location.search=="?download=true";
   if(window.location.search=="?xy=true") {
     with_xy = true;
   }
   chrome.runtime.sendMessage({action: "get_items"}, function(response) {
       dt.items = response.items;
-      dt.render(with_xy);
-      document.getElementById("casperbox-button").onclick = function() {
-        dt.postToCasperbox();
-      };
+      dt.render(with_xy,
+      download ?
+        function(content){
+              dt.download(false, content);
+        } : false
+      );
+      if(!download){
+        document.getElementById("casperbox-button").onclick = function() {
+          dt.postToCasperbox();
+        };
+      }
   });
 };

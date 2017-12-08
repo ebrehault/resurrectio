@@ -78,6 +78,10 @@ RecorderUI.prototype.set_started = function() {
     e.className += " hide";
     e = document.getElementById("recording");
     e.className = e.className.replace(/ hide|hide/ig, "");
+    e = document.getElementById("turl");
+    e.disabled = true;
+    e = document.getElementById("bdownload");
+    e.className += " hide";
     chrome.browserAction.setBadgeText({
         "text": "REC"
     });
@@ -107,6 +111,10 @@ RecorderUI.prototype.set_stopped = function() {
     e.className = e.className.replace(/ hide|hide/ig, "");
     e = document.getElementById("recording");
     e.className += " hide";
+    e = document.getElementById("turl");
+    e.disabled = false;
+    e = document.getElementById("bdownload");
+    e.className = e.className.replace(/ hide|hide/ig, "");
     chrome.browserAction.setBadgeText({
         "text": ""
     });
@@ -153,6 +161,10 @@ RecorderUI.prototype.exportdoc = function(bexport) {
     chrome.tabs.create({url: "./doc.html"});
 }
 
+RecorderUI.prototype.download = function(){
+    chrome.tabs.create({url: "./casper.html?download=true"});
+}
+
 RecorderUI.prototype.setBtnGoState = function(){
     chrome.tabs.getSelected(null, function (tab) {
         if(/(chrome|chrome\-extension)\:/.test(tab.url)){
@@ -176,6 +188,7 @@ window.onload = function(){
     document.querySelector('input#bgo').onclick=function() {ui.start(); return false;};
     document.querySelector('input#bstop').onclick=function() {ui.stop(); return false;};
     document.querySelector('input#bcomment').onclick=function() {ui.showcomment(); return false;};
+    document.querySelector('input#bdownload').onclick=function() {ui.download(); return false;};
     document.querySelector('input#bexport').onclick=function() {ui.export(); return false;};
     document.querySelector('input#bexportxy').onclick=function() {ui.export({xy: true}); return false;};
     document.querySelector('input#bdoc').onclick=function() {ui.exportdoc(); return false;};
