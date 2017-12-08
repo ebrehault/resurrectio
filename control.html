@@ -1,36 +1,67 @@
-<html>
-<head>
-
-<title>Test Recorder</title>
-
-<link rel="stylesheet" type="text/css" href="./style.css" />
-
-<script src="control.js"></script>
-</head>
-<body>
-<form name="control">
-<div><strong>URL:</strong>
-  <input type="text" size="80" name="url" /> 
-  <input type="submit" id="bgo" name="submit" value=" Go " /> 
-  <input type="submit" id="bstop" name="bstop" value="Stop Recording" style="display:none;" /> 
-  <input type="submit" id="bcomment" name="bcomment" value="Add Comment" style="display: none;" />
-  <input type="submit" id="bexport" name="bexport" value="Export CasperJS" style="display: none;" />
-  <input type="submit" id="bexportxy" name="bexportxy" value="Export CasperJS with (x,y) coords" style="display: none;" /> 
-  <input type="submit" id="bdoc" name="bdoc" value="Export doc" style="display: none;" /> 
-</div> 
-<div id="comment" style="display:none">
-  <strong>Comment:</strong> 
-  <textarea id="ctext" id="ctext" name="ctext"
-   rows="8" cols="80"></textarea> 
-  <br />
-  <input type="submit" id="bsavecomment" name="c1" value=" Save " /> 
-  <input type="submit" id="bcancelcomment" name="c2" value=" Cancel " />
-</div>
-</form>
-<div id="logo"></div>
-<p class="tagline">
-    <a href="https://github.com/ebrehault/resurrectio" target="_new">Resurrectio</a> - 
-    <span id="tagline">Every phantom deserves a resurrection.</span>
-    <a href="http://www.makina-corpus.com" target="_new" title="Makina Corpus"><img alt="Makina Corpus" src="./makina-corpus.png" /></a></p>
-</body>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Test Recorder</title>
+    <meta charset="UTF-8" />
+    <meta name="renderer" content="Webkit" />
+    <meta name="format-detection" content="telephone=no, email=no, adress=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta http-equiv="content-language" content="en-us" />
+    <meta http-equiv="content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=EmulateIE7; IE=7; IE=8; IE=9; IE=10" />
+    <link rel="stylesheet" href="bootstrap.min.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+      <nav class="navbar navbar-default">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="http://www.makina-corpus.com" target="_blank">
+              <div class="header clearfix">
+                <div class="pull-left">
+                  Resurrectio Test Recorder
+                </div>
+                <div class="pull-right">
+                  <img id="recording" class="hide" src="recording.gif" />
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </nav>
+      <div class="container">
+        <form name="control" action="javascript:;">
+          <div class="form-group">
+            <label for="exampleInputEmail1">URL:</label>
+            <input id="turl" type="text" name="url" class="form-control" placeholder="Enter a url to record…" /> 
+          </div>
+          <div class="form-group">
+            <input type="submit" class="btn btn-success btn-lg btn-block" id="bgo" value="Start Recording" />
+            <input type="submit" class="btn btn-primary btn-lg btn-block hide" id="bstop" name="bstop" value="Stop Recording" />
+            <input type="submit" class="btn btn-default btn-lg btn-block hide" id="bcomment" name="bcomment" value="Add Comment" />
+            <input type="submit" class="btn btn-default btn-md btn-block hide" id="bexport" name="bexport" value="Export CasperJS" />
+            <input type="submit" class="btn btn-default btn-md btn-block hide" id="bexportxy" name="bexportxy" value="Export CasperJS with (x,y) coords" /> 
+            <input type="submit" class="btn btn-default btn-md btn-block hide" id="bdoc" name="bdoc" value="Export doc" /> 
+          </div>
+          <div id="comment" class="hide">
+            <div class="form-group">
+              <label for="exampleInputEmail1">Comment:</label>
+              <textarea id="ctext" class="form-control"  id="ctext" name="ctext" rows="8" cols="80"></textarea>
+            </div>
+            <div class="form-group">
+              <input type="submit" id="bsavecomment" class="btn btn-success btn-md" name="c1" value="Save" />
+              <input type="submit" id="bcancelcomment" class="btn btn-danger btn-md" name="c2" value="Cancel" />
+            </div>
+          </div>
+          <div class="form-group">
+            <p class="tagline">
+              <a href="https://github.com/ebrehault/resurrectio" target="_blank">Resurrectio</a>
+              <span id="tagline"> - Every phantom deserves a resurrection.</span>
+              <a href="http://www.makina-corpus.com" target="_blank" title="Makina Corpus"><img alt="Makina Corpus" src="./makina-corpus.png" /></a>
+            </p>
+          </div>
+        </div>
+      </form>
+      <script type="text/javascript" src="control.js"></script>
+  </body>
 </html>

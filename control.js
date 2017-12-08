@@ -62,20 +62,28 @@ RecorderUI.prototype.start = function() {
 }
 
 RecorderUI.prototype.set_started = function() {
-  var e = document.getElementById("bstop");
-  e.style.display = '';
-  e.onclick = ui.stop;
-  e.value = "Stop Recording";
-  e = document.getElementById("bgo");
-  e.style.display = 'none';
-  e = document.getElementById("bcomment");
-  e.style.display = '';
-  e = document.getElementById("bexport");
-  e.style.display = 'none';
-  e = document.getElementById("bexportxy");
-  e.style.display = 'none';
-  e = document.getElementById("bdoc");
-  e.style.display = 'none';
+    var e = document.getElementById("bstop");
+    e.className = e.className.replace(/ hide|hide/ig, "");
+    e.onclick = ui.stop;
+    e.value = "Stop Recording";
+    e = document.getElementById("bgo");
+    e.className += " hide";
+    e = document.getElementById("bcomment");
+    e.className = e.className.replace(/ hide|hide/ig, "");
+    e = document.getElementById("bexport");
+    e.className += " hide";
+    e = document.getElementById("bexportxy");
+    e.className += " hide";
+    e = document.getElementById("bdoc");
+    e.className += " hide";
+    e = document.getElementById("recording");
+    e.className = e.className.replace(/ hide|hide/ig, "");
+    chrome.browserAction.setBadgeText({
+        "text": "REC"
+    });
+    chrome.browserAction.setBadgeBackgroundColor({
+        "color": "#c53929"
+    })
 }
 
 RecorderUI.prototype.stop = function() {
@@ -85,25 +93,33 @@ RecorderUI.prototype.stop = function() {
 }
 
 RecorderUI.prototype.set_stopped = function() {
-	var e = document.getElementById("bstop");
-	e.style.display = 'none';
-	e = document.getElementById("bgo");
-  e.style.display = '';
-	e = document.getElementById("bcomment");
-	e.style.display = 'none';
-	e = document.getElementById("bexport");
-	e.style.display = '';
-  e = document.getElementById("bexportxy");
-  e.style.display = '';
-  e = document.getElementById("bdoc");
-  e.style.display = '';
+    var e = document.getElementById("bstop");
+    e.className += " hide";
+    e = document.getElementById("bgo");
+    e.className = e.className.replace(/ hide|hide/ig, "");
+    e = document.getElementById("bcomment");
+    e.className += " hide";
+    e = document.getElementById("bexport");
+    e.className = e.className.replace(/ hide|hide/ig, "");
+    e = document.getElementById("bexportxy");
+    e.className = e.className.replace(/ hide|hide/ig, "");
+    e = document.getElementById("bdoc");
+    e.className = e.className.replace(/ hide|hide/ig, "");
+    e = document.getElementById("recording");
+    e.className += " hide";
+    chrome.browserAction.setBadgeText({
+        "text": ""
+    });
+    chrome.browserAction.setBadgeBackgroundColor({
+        "color": ""
+    })
 }
 
 RecorderUI.prototype.showcomment = function() {
   var e = document.getElementById("bcomment");
-  e.style.display = 'none';
+  e.className += " hide";
   e = document.getElementById("comment");
-  e.style.display = '';
+  e.className = e.className.replace(/hide/ig, "");
   e = document.getElementById("ctext");
   e.focus();
   return false;
@@ -111,9 +127,9 @@ RecorderUI.prototype.showcomment = function() {
 
 RecorderUI.prototype.hidecomment = function(bsave) {
   var e = document.getElementById("bcomment");
-  e.style.display = '';
+  e.className = e.className.replace(/ hide|hide/ig, "");
   e = document.getElementById("comment");
-  e.style.display = 'none';
+  e.className += " hide";
   e = document.getElementById("ctext");
   if (bsave) {
     var txt = e.value;
@@ -132,8 +148,25 @@ RecorderUI.prototype.export = function(options) {
     chrome.tabs.create({url: "./casper.html"});
   }
 }
+
 RecorderUI.prototype.exportdoc = function(bexport) {
     chrome.tabs.create({url: "./doc.html"});
+}
+
+RecorderUI.prototype.setBtnGoState = function(){
+    chrome.tabs.getSelected(null, function (tab) {
+        if(/(chrome|chrome\-extension)\:/.test(tab.url)){
+            document.querySelector("input#bgo").className += " disabled";
+            document.querySelector("input#bgo").disabled = true;
+        }
+    });
+    document.querySelector("input#turl").addEventListener("input", function(){
+        var bgoStyle = document.querySelector("input#bgo");
+        if(!/(chrome|chrome\-extension)\:/.test(this.value)){
+                bgoStyle.className = bgoStyle.className.replace(/ disabled|disabled/ig, "");
+                bgoStyle.disabled = false;
+        }
+    });
 }
 
 var ui;
@@ -150,4 +183,5 @@ window.onload = function(){
     document.querySelector('input#bcancelcomment').onclick=function() {ui.hidecomment(false); return false;};
     document.querySelector('#tagline').onclick=function() {this.innerText='Omne phantasma resurrectionem suam promit.'};
     ui = new RecorderUI();
+    ui.setBtnGoState();
 }
