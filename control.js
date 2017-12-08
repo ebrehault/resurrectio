@@ -62,22 +62,28 @@ RecorderUI.prototype.start = function() {
 }
 
 RecorderUI.prototype.set_started = function() {
-  var e = document.getElementById("bstop");
-  e.className = e.className.replace(/ hide|hide/ig, "");
-  e.onclick = ui.stop;
-  e.value = "Stop Recording";
-  e = document.getElementById("bgo");
-  e.className += " hide";
-  e = document.getElementById("bcomment");
-  e.className = e.className.replace(/ hide|hide/ig, "");
-  e = document.getElementById("bexport");
-  e.className += " hide";
-  e = document.getElementById("bexportxy");
-  e.className += " hide";
-  e = document.getElementById("bdoc");
-  e.className += " hide";
-  e = document.getElementById("recording");
-  e.className = e.className.replace(/ hide|hide/ig, "");
+    var e = document.getElementById("bstop");
+    e.className = e.className.replace(/ hide|hide/ig, "");
+    e.onclick = ui.stop;
+    e.value = "Stop Recording";
+    e = document.getElementById("bgo");
+    e.className += " hide";
+    e = document.getElementById("bcomment");
+    e.className = e.className.replace(/ hide|hide/ig, "");
+    e = document.getElementById("bexport");
+    e.className += " hide";
+    e = document.getElementById("bexportxy");
+    e.className += " hide";
+    e = document.getElementById("bdoc");
+    e.className += " hide";
+    e = document.getElementById("recording");
+    e.className = e.className.replace(/ hide|hide/ig, "");
+    chrome.browserAction.setBadgeText({
+        "text": "REC"
+    });
+    chrome.browserAction.setBadgeBackgroundColor({
+        "color": "#c53929"
+    })
 }
 
 RecorderUI.prototype.stop = function() {
@@ -87,20 +93,26 @@ RecorderUI.prototype.stop = function() {
 }
 
 RecorderUI.prototype.set_stopped = function() {
-	var e = document.getElementById("bstop");
-	e.className += " hide";
-	e = document.getElementById("bgo");
+    var e = document.getElementById("bstop");
+    e.className += " hide";
+    e = document.getElementById("bgo");
     e.className = e.className.replace(/ hide|hide/ig, "");
-	e = document.getElementById("bcomment");
-	e.className += " hide";
-	e = document.getElementById("bexport");
-	e.className = e.className.replace(/ hide|hide/ig, "");
+    e = document.getElementById("bcomment");
+    e.className += " hide";
+    e = document.getElementById("bexport");
+    e.className = e.className.replace(/ hide|hide/ig, "");
     e = document.getElementById("bexportxy");
     e.className = e.className.replace(/ hide|hide/ig, "");
     e = document.getElementById("bdoc");
     e.className = e.className.replace(/ hide|hide/ig, "");
     e = document.getElementById("recording");
     e.className += " hide";
+    chrome.browserAction.setBadgeText({
+        "text": ""
+    });
+    chrome.browserAction.setBadgeBackgroundColor({
+        "color": ""
+    })
 }
 
 RecorderUI.prototype.showcomment = function() {
